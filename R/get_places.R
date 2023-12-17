@@ -4,7 +4,7 @@
 #'
 #'@param geo The level of desired geography. Currently supports 'county' and 'census'.
 #'@param state Specify the state of the desired data. Supports multiple states if desired.
-#'@param measure Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_vars'.
+#'@param measure Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_measures'.
 #'@param release Specify the year of release for the PLACES data set. Currently supports years 2020-2023.
 #'
 #'@examples

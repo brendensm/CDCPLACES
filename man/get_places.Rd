@@ -11,7 +11,7 @@ get_places(geo = "county", state = NULL, measure = NULL, release = "2023")
 
 \item{state}{Specify the state of the desired data. Supports multiple states if desired.}
 
-\item{measure}{Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_vars'.}
+\item{measure}{Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_measures'.}
 
 \item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2023.}
 }
