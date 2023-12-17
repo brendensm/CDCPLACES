@@ -16,6 +16,8 @@
 #'@importFrom jsonlite fromJSON
 #'@importFrom tidyr unnest
 #'@importFrom dplyr filter rename mutate
+#'
+#'@export get_places
 
 get_places <- function(geo = "county", state = NULL, measure = NULL, release = "2023"){
 
@@ -62,7 +64,7 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
     } else if(geo == "census"){
 
-      base <- "https://data.cdc.gov/resource/4ai3-zynv.json$limit=5000000"
+      base <- "https://data.cdc.gov/resource/4ai3-zynv.json?$limit=5000000"
 
     }else{
       stop("Geographic level not supported. Please enter 'census' or 'county'.")
