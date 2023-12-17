@@ -16,7 +16,7 @@ get_places(geo = "county", state = NULL, measure = NULL, release = "2023")
 \item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2023.}
 }
 \description{
-Use this function to access the CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
+Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
 }
 \examples{
 get_places(geo = "county", state = "MI", measure = "SLEEP", release = 2023)
