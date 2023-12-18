@@ -24,6 +24,6 @@ Use this function to access CDC PLACES API data. Measures are sourced from the B
 \examples{
 get_places(geo = "county", state = "MI", measure = "SLEEP", release = "2023")
 get_places(geo = "county", state = c("MI", "OH", "WI", "IN", "IL"),
-measure = c("SLEEP", "ACESS2"), release = "2023")
+measure = c("SLEEP", "ACCESS2"), release = "2023")
 
 }
