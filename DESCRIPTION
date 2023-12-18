@@ -1,6 +1,6 @@
 Package: CDCPLACES
 Type: Package
-Title: CDCPLACES: Functions to Access the CDC PLACES API
+Title: Functions to Access the CDC PLACES API
 Version: 0.1.0
 Authors@R: c(person("Brenden Smith", role = c("aut", "cre"), email = "smit2535@msu.edu"))
 Maintainer: Brenden Smith <smit2535@msu.edu>
