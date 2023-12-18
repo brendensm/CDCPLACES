@@ -1,6 +1,6 @@
-# CDCPLACES: Functions to Access CDC PLACES API
+# CDCPLACES: Functions to Access the CDC PLACES API
 
-This package allows users to seamlessly query the Center for Disease Control and Prevention's Population Level Analysis and Community Estimates (PLACES) API.
+This package allows users to seamlessly query the Center for Disease Control and Prevention's (CDC) Population Level Analysis and Community Estimates (PLACES) API.
 
 From the [CDC's website:](https://www.cdc.gov/places/index.html) 
 >PLACES is a collaboration between CDC, the Robert Wood Johnson Foundation, and the CDC Foundation. PLACES provides health data for small areas across the country. This allows local health departments and jurisdictions, regardless of population size and rurality, to better understand the burden and geographic distribution of health measures in their areas and assist them in planning public health interventions.
