@@ -19,6 +19,7 @@ Imports:
   dplyr,
   httr2,
   jsonlite,
-  tidyr
+  tidyr,
+  utils
 Depends: 
     R (>= 2.10)

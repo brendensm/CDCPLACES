@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_measures.R
 \name{get_measures}
 \alias{get_measures}
-\title{Get Vars}
+\title{Get Measures}
 \usage{
 get_measures(release)
 }
@@ -16,6 +16,8 @@ A viewer that opens a tibble of the available measures for a specified release y
 Use this function to source a list of available measures in the CDC PLACES data set.
 }
 \examples{
+\dontrun{
 get_measures(2022)
+}
 
 }
