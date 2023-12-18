@@ -22,8 +22,8 @@ A tibble that contains observations for each measure (adjusted and unadjusted pr
 Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
 }
 \examples{
-get_places(geo = "county", state = "MI", measure = "SLEEP", release = 2023)
+get_places(geo = "county", state = "MI", measure = "SLEEP", release = "2023")
 get_places(geo = "county", state = c("MI", "OH", "WI", "IN", "IL"),
-measure = c("SLEEP", "ACESS2"), release = 2023)
+measure = c("SLEEP", "ACESS2"), release = "2023")
 
 }

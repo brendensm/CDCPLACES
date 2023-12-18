@@ -10,7 +10,7 @@
 #'@examples
 #'get_places(geo = "county", state = "MI", measure = "SLEEP", release = "2023")
 #'get_places(geo = "county", state = c("MI", "OH", "WI", "IN", "IL"),
-#'measure = c("SLEEP", "ACESS2"), release = "2023")
+#'measure = c("SLEEP", "ACCESS2"), release = "2023")
 #'
 #'@importFrom httr2 request req_perform resp_body_string
 #'@importFrom jsonlite fromJSON
