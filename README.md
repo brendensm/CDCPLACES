@@ -1,4 +1,4 @@
-# PLACES: Functions to Access CDC PLACES API
+# CDCPLACES: Functions to Access CDC PLACES API
 
 This package allows users to seamlessly query the Center for Disease Control and Prevention's Population Level Analysis and Community Estimates (PLACES) API.
 
@@ -14,7 +14,7 @@ For more information on this data set's methodology and measure definitions refe
 To install the package run the following line of code:
 
 ``` r
-devtools::install_github("brendensm/PLACES")
+devtools::install_github("brendensm/CDCPLACES")
 ```
 
 # Main Functions

@@ -1,4 +1,4 @@
-#'Get Vars
+#'Get Measures
 #'
 #'Use this function to source a list of available measures in the CDC PLACES data set.
 #'
