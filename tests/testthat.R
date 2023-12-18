@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(PLACES)
+library(CDCPLACES)
 
-test_check("PLACES")
+test_check("CDCPLACES")
