@@ -2,8 +2,23 @@
 #'
 #'Use this function to source a list of available measures in the CDC PLACES data set.
 #'
+#'@param release The year of release for the requested data set (2020-2023)
+#'
+#'@examples
+#'get_measures(2022)
+#'
 #'@export get_measures
 
-get_measures <- function(){
-  View(measures)
+get_measures <- function(release){
+  if (release == "2023"){
+    View(measures23)
+  }else if (release == "2022"){
+    View(measures22)
+  }else if (release == "2021"){
+    View(measures21)
+  }else if (release == "2020"){
+    View(measures20)
+  }else{
+    stop("Please enter a valid year (2020-2023).")
+  }
 }

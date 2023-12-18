@@ -20,8 +20,8 @@ devtools::install_github("brendensm/PLACES")
 # Main Functions
 
 -   `get_places` &mdash; a function to query the PLACES API. Arguments allows the user to specify geography (census/county), state, measure, and release (2020-2023).
--   `get_measures` &mdash; a function to pull a full list of the 36 measures available in the PLACES data set. This will automatically open a viewer showing a data frame of the measures and a brief description.
+-   `get_measures` &mdash; a function to pull a full list of the measures available for the specific release year of the PLACES data set. Users must specify one argument release. This will automatically open a viewer showing a data frame of the measures and a brief description.
 
 # Examples
 
-To view a complete walk through of the package, view the vignette found [here.](https://brendenmsmith.com/posts/)
+To view a complete walk through of the package, view the vignette found [here.](https://brendenmsmith.com/posts/introducing%20the%20places%20package/)
