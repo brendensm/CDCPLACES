@@ -4,8 +4,18 @@
 \alias{get_measures}
 \title{Get Vars}
 \usage{
-get_measures()
+get_measures(release)
+}
+\arguments{
+\item{release}{The year of release for the requested data set (2020-2023)}
+}
+\value{
+A viewer that opens a tibble of the available measures for a specified release year.
 }
 \description{
 Use this function to source a list of available measures in the CDC PLACES data set.
+}
+\examples{
+get_measures(2022)
+
 }

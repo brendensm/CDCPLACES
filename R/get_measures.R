@@ -8,6 +8,7 @@
 #'get_measures(2022)
 #'
 #'@export get_measures
+#'@returns A viewer that opens a tibble of the available measures for a specified release year.
 
 get_measures <- function(release){
   if (release == "2023"){

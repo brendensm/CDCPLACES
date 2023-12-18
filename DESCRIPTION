@@ -1,11 +1,14 @@
 Package: PLACES
 Type: Package
-Title: PLACES: Functions to access CDC PLACES API
+Title: PLACES: Functions to Access the CDC PLACES API
 Version: 0.1.0
-Author: Brenden Smith
+Authors@R: c(person("Brenden Smith", role = c("aut", "cre"), email = "smit2535@msu.edu"))
 Maintainer: Brenden Smith <smit2535@msu.edu>
-Description: This package allows users to seamlessly query the CDC PLACES API.
+Description: This package allows users to seamlessly query the CDC PLACES API by
+    geography, state, measure, and release year. This package also contains a
+    function to explore the available measures for each release year.
 License: MIT
+URL: "https://github.com/brendensm/PLACES"
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3

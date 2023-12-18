@@ -18,6 +18,7 @@
 #'@importFrom dplyr filter rename mutate
 #'
 #'@export get_places
+#'@returns A tibble that contains observations for each measure (adjusted and unadjusted prevalence) and geographic level.
 
 get_places <- function(geo = "county", state = NULL, measure = NULL, release = "2023"){
 
