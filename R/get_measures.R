@@ -5,6 +5,5 @@
 #'@export get_measures
 
 get_measures <- function(){
-  measures <- read.csv("data/measures.csv")[,-1]
   View(measures)
 }
