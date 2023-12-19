@@ -1,4 +1,4 @@
-# Functions to Access the CDC PLACES API
+# Functions to Access the 'CDC PLACES' API
 
 This package allows users to seamlessly query the Center for Disease Control and Prevention's (CDC) Population Level Analysis and Community Estimates (PLACES) API.
 
