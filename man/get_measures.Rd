@@ -17,7 +17,8 @@ Use this function to source a list of available measures in the CDC PLACES data 
 }
 \examples{
 
+\dontrun{
 get_measures(2022)
-
+}
 
 }
