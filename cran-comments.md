@@ -9,7 +9,7 @@ This is a resubmission. In this version I have:
 
 * Removed the use of cat() from get_places.R and used message(), as suggested.
 
-* removed \dontrun{} from the example in get_measures.Rd
+* \dontrun{} was not removed from the example in get_measures.Rd as this function uses View()     which should not be used in examples
 
 ## R CMD check results
 

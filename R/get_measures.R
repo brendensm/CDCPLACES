@@ -6,8 +6,9 @@
 #'
 #'@examples
 #'
+#'\dontrun{
 #'get_measures(2022)
-#'
+#'}
 #'
 #'@importFrom utils View
 #'@export get_measures
