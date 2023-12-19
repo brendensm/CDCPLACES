@@ -77,7 +77,7 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
   if(is.null(state) & is.null(measure)){
 
-    cat("Pulling data for all geographies. This may take some time...")
+    message("Pulling data for all geographies. This may take some time...")
 
     places1 <- httr2::request(base)
 

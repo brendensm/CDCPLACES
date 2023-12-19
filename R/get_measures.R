@@ -5,9 +5,9 @@
 #'@param release The year of release for the requested data set (2020-2023)
 #'
 #'@examples
-#'\dontrun{
+#'
 #'get_measures(2022)
-#'}
+#'
 #'
 #'@importFrom utils View
 #'@export get_measures

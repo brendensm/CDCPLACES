@@ -1,12 +1,12 @@
 Package: CDCPLACES
 Type: Package
-Title: Functions to Access the CDC PLACES API
-Version: 1.0.0
+Title: Access the 'CDC PLACES' API
+Version: 2.0.0
 Authors@R: c(person("Brenden Smith", role = c("aut", "cre"), email = "smit2535@msu.edu"))
 Maintainer: Brenden Smith <smit2535@msu.edu>
-Description: Allows users to seamlessly query the CDC PLACES API by
-    geography, state, measure, and release year. This package also contains a
-    function to explore the available measures for each release year.
+Description: Allows users to seamlessly query several 'CDC PLACES' APIs (<https://data.cdc.gov/browse?q=PLACES%20&sortBy=relevance>)
+    by geography, state, measure, and release year. This package also contains a
+    function to explore the available measures for each release year. 
 License: MIT + file LICENSE
 URL: "https://github.com/brendensm/CDCPLACES"
 Encoding: UTF-8
