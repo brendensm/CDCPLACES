@@ -1,3 +1,7 @@
+## This is a resubmission. In this version I have:
+
+* Edited the web reference to include a single URL with angle brackets.
+
 ## Resubmission
 This is a resubmission. In this version I have:
 
