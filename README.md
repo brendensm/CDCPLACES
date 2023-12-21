@@ -14,6 +14,12 @@ For more information on this data set's methodology and measure definitions refe
 To install the package run the following line of code:
 
 ``` r
+install.packages("CDCPLACES")
+```
+
+To install the latest development version run:
+
+``` r
 devtools::install_github("brendensm/CDCPLACES")
 ```
 
