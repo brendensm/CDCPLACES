@@ -2,8 +2,6 @@
 
 This patch 
 
-* Removes the 'measures' datasets from the package.
-
 * Edits get_dictionary to return the data frame of the data dictionary directly from API and removes the built in View() command. 
 
 ## Patch 1.1.3
