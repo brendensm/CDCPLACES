@@ -2,16 +2,16 @@
 % Please edit documentation in R/get_places.R
 \name{get_places}
 \alias{get_places}
-\title{Obtain data from the CDC PLACES data base.}
+\title{Obtain data from the CDC PLACES APIs.}
 \usage{
 get_places(geo = "county", state = NULL, measure = NULL, release = "2023")
 }
 \arguments{
 \item{geo}{The level of desired geography. Currently supports 'county' and 'census'.}
 
-\item{state}{Specify the state of the desired data. Supports multiple states if desired.}
+\item{state}{Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.}
 
-\item{measure}{Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_measures'.}
+\item{measure}{Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.}
 
 \item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2023.}
 }
@@ -23,7 +23,7 @@ Use this function to access CDC PLACES API data. Measures are sourced from the B
 }
 \examples{
 get_places(geo = "county", state = "MI", measure = "SLEEP", release = "2023")
-get_places(geo = "county", state = c("MI", "OH", "WI", "IN", "IL"),
+get_places(geo = "county", state = c("MI", "OH"),
 measure = c("SLEEP", "ACCESS2"), release = "2023")
 
 }

@@ -1,3 +1,7 @@
+<!-- badges: start -->
+  [![R-CMD-check](https://github.com/brendensm/PLACES/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/brendensm/PLACES/actions/workflows/R-CMD-check.yaml)
+  <!-- badges: end -->
+
 # Functions to Access the 'CDC PLACES' API
 
 This package allows users to seamlessly query the Centers for Disease Control and Prevention's (CDC) Population Level Analysis and Community Estimates (PLACES) API.
@@ -11,7 +15,7 @@ For more information on this data set's methodology and measure definitions refe
 
 # Installation
 
-To install the package run the following line of code:
+To install the package from CRAN run the following line of code:
 
 ``` r
 install.packages("CDCPLACES")
@@ -26,7 +30,7 @@ devtools::install_github("brendensm/CDCPLACES")
 # Main Functions
 
 -   `get_places` &mdash; a function to query the PLACES API. Arguments allows the user to specify geography (census/county), state, measure, and release (2020-2023).
--   `get_measures` &mdash; a function to pull a full list of the measures available for the specific release year of the PLACES data set. Users must specify one argument release. This will automatically open a viewer showing a data frame of the measures and a brief description.
+-   `get_dictionary` &mdash; a function to pull a full list of the measures available in the PLACES data set.
 
 # Examples
 

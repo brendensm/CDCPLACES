@@ -1,23 +1,20 @@
-## This is a resubmission. In this version I have:
+## Patch 1.1.3
 
-* Edited the web reference to include a single URL with angle brackets.
+This is a patch to address feedback received on Dec 22, 2023. 
 
-## Resubmission
-This is a resubmission. In this version I have:
+Maintainer was given until Jan 10, 2024 to ensure the package follows the the CRAN policy: 'Packages which use Internet resources should fail gracefully with an informative message if the resource is not available or has changed (and not give a check warning nor error).' This patch:
 
-* Omitted "Functions to" in the title.
+* Added check functions to ensure a supported 'state' or 'measure' is queried with a helpful error message if a typo is entered.
 
-* Added single quotes to all instances of 'CDC PLACES' in the title and description.
+* Added an if statement to check if the API is online and an informative stop() message.
 
-* Added a web reference to the description.
+* Added a message to confirm the request was performed with a status code.
 
-* Removed the use of cat() from get_places.R and used message(), as suggested.
-
-* \dontrun{} was not removed from the example in get_measures.Rd as this function uses View()     which should not be used in examples
+* The function get_measures has been replaced with get_dictionary.
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-* This is a new release.
+
 

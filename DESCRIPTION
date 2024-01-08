@@ -1,7 +1,7 @@
 Package: CDCPLACES
 Type: Package
 Title: Access the 'CDC PLACES' API
-Version: 1.1.2
+Version: 1.1.3
 Authors@R: c(person("Brenden Smith", role = c("aut", "cre"), email = "smit2535@msu.edu"))
 Maintainer: Brenden Smith <smit2535@msu.edu>
 Description: Allows users to seamlessly query several 'CDC PLACES' APIs (<https://data.cdc.gov/browse?q=PLACES%20&sortBy=relevance>)
