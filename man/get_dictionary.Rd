@@ -4,18 +4,19 @@
 \alias{get_dictionary}
 \title{View the 'CDC PLACES' data dictionary}
 \usage{
-get_dictionary(view = TRUE)
-}
-\arguments{
-\item{view}{Logical, if true, the function opens a viewer for the user's convenience. If false, only the data frame is returned.}
+get_dictionary()
 }
 \value{
 a dataframe with the current PLACES data dictionary.
 }
 \description{
 This function provides the user with a data frame that shows all of the available measures in the PLACES data set and for which release years the measures are included.
+#'
 }
 \examples{
-get_dictionary(view = FALSE)
+\dontrun{
+dictionary <- get_dictionary()
+View(dictionary)
+}
 
 }
