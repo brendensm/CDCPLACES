@@ -1,8 +1,10 @@
 ## Patch 1.1.4
 
-This patch 
+This patch:
 
 * Edits get_dictionary to return the data frame of the data dictionary directly from API and removes the built in View() command. 
+
+* Fixes the invalid URL in the README.md
 
 ## Patch 1.1.3
 
