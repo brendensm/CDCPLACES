@@ -2,6 +2,7 @@
 
 export(get_dictionary)
 export(get_places)
+importFrom(curl,has_internet)
 importFrom(dplyr,filter)
 importFrom(dplyr,mutate)
 importFrom(dplyr,rename)

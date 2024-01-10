@@ -17,6 +17,7 @@
 #'@importFrom tidyr unnest
 #'@importFrom dplyr filter rename mutate
 #'@importFrom httr http_error timeout GET message_for_status
+#'@importFrom curl has_internet
 #'
 #'@export get_places
 #'@returns A tibble that contains observations for each measure (adjusted and unadjusted prevalence) and geographic level.
@@ -77,6 +78,11 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
   }else{
     stop("Release year is not available. Please enter a year 2020-2023.")
+  }
+
+  if(!curl::has_internet()){
+    message("Request could not be completed. No internet connection.")
+    return(invisible(NULL))
   }
 
   if(is.null(state) & is.null(measure)){
