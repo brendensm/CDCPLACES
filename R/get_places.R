@@ -16,21 +16,21 @@
 #'@importFrom jsonlite fromJSON
 #'@importFrom tidyr unnest
 #'@importFrom dplyr filter rename mutate
+#'@importFrom httr http_error timeout GET message_for_status
 #'
 #'@export get_places
 #'@returns A tibble that contains observations for each measure (adjusted and unadjusted prevalence) and geographic level.
 
 get_places <- function(geo = "county", state = NULL, measure = NULL, release = "2023"){
 
-
   if(release == "2023"){
     if(geo == "county"){
 
-      base <-  "https://data.cdc.gov/resource/swc5-untb.json?$limit=500000"
+      base <-  "https://data.cdc.gov/resource/swc5-untb.json"
 
     } else if(geo == "census"){
 
-      base <- "https://data.cdc.gov/resource/cwsq-ngmh.json?$limit=5000000"
+      base <- "https://data.cdc.gov/resource/cwsq-ngmh.json"
 
     }else{
       stop("Geographic level not supported. Please enter 'census' or 'county'.")
@@ -39,11 +39,11 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
   }else if(release == "2022"){
     if(geo == "county"){
 
-      base <- "https://data.cdc.gov/resource/duw2-7jbt.json?$limit=500000"
+      base <- "https://data.cdc.gov/resource/duw2-7jbt.json"
 
     } else if(geo == "census"){
 
-      base <- "https://data.cdc.gov/resource/nw2y-v4gm.json?$limit=5000000"
+      base <- "https://data.cdc.gov/resource/nw2y-v4gm.json"
 
     }else{
       stop("Geographic level not supported. Please enter 'census' or 'county'.")
@@ -52,11 +52,11 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
   }else if(release == "2021"){
     if(geo == "county"){
 
-      base <- "https://data.cdc.gov/resource/pqpp-u99h.json?$limit=5000000"
+      base <- "https://data.cdc.gov/resource/pqpp-u99h.json"
 
     } else if(geo == "census"){
 
-      base <- "https://data.cdc.gov/resource/373s-ayzu.json?$limit=5000000"
+      base <- "https://data.cdc.gov/resource/373s-ayzu.json"
 
     }else{
       stop("Geographic level not supported. Please enter 'census' or 'county'.")
@@ -65,11 +65,11 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
   }else if(release == "2020"){
     if(geo == "county"){
 
-      base <- "https://data.cdc.gov/resource/dv4u-3x3q.json?$limit=5000000"
+      base <- "https://data.cdc.gov/resource/dv4u-3x3q.json"
 
     } else if(geo == "census"){
 
-      base <- "https://data.cdc.gov/resource/4ai3-zynv.json?$limit=5000000"
+      base <- "https://data.cdc.gov/resource/4ai3-zynv.json"
 
     }else{
       stop("Geographic level not supported. Please enter 'census' or 'county'.")
@@ -83,15 +83,10 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
     message("Pulling data for all geographies. This may take some time...")
 
+    check_api(base)
+
     places1 <- httr2::request(base) |>
       httr2::req_perform()
-
-    if(places1$status_code == 500){
-      stop("Request failed with status code:", places1$status_code, "Server Error.",
-           "Please try again at another time. For more information, see Socrata's response codes at 'https://dev.socrata.com/docs/response-codes.html'.")
-    }else{
-      message(paste("Request performed with status code:", places1$status_code))
-    }
 
     places_out <-  places1 |>
       httr2::resp_body_string() |>
@@ -103,19 +98,14 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
     lapply(state, check_states)
 
+    check_api(base)
+
     places_out <- data.frame()
 
     for(i in state){
 
-      places1 <- httr2::request(paste0(base, "&stateabbr=", i)) |>
+      places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", i)) |>
         httr2::req_perform()
-
-      if(places1$status_code == 500){
-        stop("Request failed with status code:", places1$status_code, "Server Error.",
-             "Please try again at another time. For more information, see Socrata's response codes at 'https://dev.socrata.com/docs/response-codes.html'.")
-      }else{
-        message(paste("Request performed with status code:", places1$status_code))
-      }
 
       places_out_add <- places1 |>
         httr2::resp_body_string() |>
@@ -131,19 +121,14 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
     lapply(measure, check_measures, ryear=release)
 
+    check_api(base)
+
     places_out <- data.frame()
 
     for(i in measure){
 
-      places1 <- httr2::request(paste0(base, "&measureid=", i)) |>
+      places1 <- httr2::request(paste0(base, "?$limit=5000000", "&measureid=", i)) |>
         httr2::req_perform()
-
-      if(places1$status_code == 500){
-        stop("Request failed with status code:", places1$status_code, "Server Error.",
-             "Please try again at another time. For more information, see Socrata's response codes at 'https://dev.socrata.com/docs/response-codes.html'.")
-      }else{
-        message(paste("Request performed with status code:", places1$status_code))
-      }
 
       places_out_add <- places1 |>
         httr2::resp_body_string() |>
@@ -161,26 +146,21 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
     lapply(measure, check_measures, ryear=release)
 
+    check_api(base)
+
     places_out <- data.frame()
 
     if(length(measure) > length(state)){
 
       for(i in measure){
 
-        p1 <- paste0(base, "&stateabbr=", state, "&measureid=", i)
+        p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)
 
         for(b in seq(state)){
 
           places1 <- p1[b] |>
             httr2::request() |>
             httr2::req_perform()
-
-          if(places1$status_code == 500){
-            stop("Request failed with status code:", places1$status_code, "Server Error.",
-                 "Please try again at another time. For more information, see Socrata's response codes at 'https://dev.socrata.com/docs/response-codes.html'.")
-          }else{
-            message(paste("Request performed with status code:", places1$status_code))
-          }
 
           places_out_add <- places1 |>
             httr2::resp_body_string() |>
@@ -197,20 +177,13 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
       for(i in state){
 
-        p1 <- paste0(base, "&stateabbr=", i, "&measureid=", measure)
+        p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", i, "&measureid=", measure)
 
         for(b in seq(measure)){
 
           places1 <- p1[b] |>
             httr2::request() |>
             httr2::req_perform()
-
-          if(places1$status_code == 500){
-            stop("Request failed with status code:", places1$status_code, "Server Error.",
-                 "Please try again at another time. For more information, see Socrata's response codes at 'https://dev.socrata.com/docs/response-codes.html'.")
-          }else{
-            message(paste("Request performed with status code:", places1$status_code))
-          }
 
           places_out_add <- places1 |>
             httr2::resp_body_string() |>
@@ -232,21 +205,16 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
     lapply(measure, check_measures, ryear=release)
 
+    check_api(base)
+
     places_out <- data.frame()
 
     for(i in state){
 
-      base_url <- paste0(base, "&measureid=", measure, "&stateabbr=", i)
+      base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
 
       places1 <- httr2::request(base_url) |>
         httr2::req_perform()
-
-      if(places1$status_code == 500){
-        stop("Request failed with status code:", places1$status_code, "Server Error.",
-             "Please try again at another time. For more information, see Socrata's response codes at 'https://dev.socrata.com/docs/response-codes.html'.")
-      }else{
-        message(paste("Request performed with status code:", places1$status_code))
-      }
 
       places_out_add <- places1 |>
         httr2::resp_body_string() |>
@@ -263,20 +231,15 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
     lapply(measure, check_measures, ryear=release)
 
+    check_api(base)
+
     places_out <- data.frame()
 
     for(i in measure){
 
 
-      places1 <- httr2::request(paste0(base, "&stateabbr=", state, "&measureid=", i)) |>
+      places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
         httr2::req_perform()
-
-      if(places1$status_code == 500){
-        stop("Request failed with status code:", places1$status_code, "Server Error.",
-             "Please try again at another time. For more information, see Socrata's response codes at 'https://dev.socrata.com/docs/response-codes.html'.")
-      }else{
-        message(paste("Request performed with status code:", places1$status_code))
-      }
 
       places_out_add <- places1 |>
         httr2::resp_body_string() |>
@@ -340,6 +303,30 @@ check_states <- function(x){
 
   if(!(x %in% us_states)){
     stop("Please enter a valid US State name.")
+  }
+
+}
+
+#'check if api returns error, if so: fail gracefully.
+#'@param x The base url used in API query
+#'@noRd
+
+check_api <- function(x){
+
+  try_GET <- function(x, ...) {
+    tryCatch(
+      httr::GET(url = x, httr::timeout(10), ...),
+      error = function(e) conditionMessage(e),
+      warning = function(w) conditionMessage(w)
+    )
+  }
+
+  resp <- try_GET(x)
+
+  if(httr::http_error(resp)){
+    httr::message_for_status(resp)
+    message("\nFor full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
+    return(invisible(NULL))
   }
 
 }
