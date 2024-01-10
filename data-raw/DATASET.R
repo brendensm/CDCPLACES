@@ -20,7 +20,5 @@ measures20 <- get_places(state = "MI", release = "2020") %>%
   unique() %>%
   mutate(release = "2020")
 
-usethis::use_data(measures23, compress = "xz")
-usethis::use_data(measures22, compress = "xz")
-usethis::use_data(measures21, compress = "xz")
-usethis::use_data(measures20, compress = "xz")
+usethis::use_data(measures23, measures22, measures21, measures20, internal = TRUE, compress = "xz")
+
