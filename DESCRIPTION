@@ -8,7 +8,7 @@ Description: Allows users to seamlessly query several 'CDC PLACES' APIs (<https:
     by geography, state, measure, and release year. This package also contains a
     function to explore the available measures for each release year. 
 License: MIT + file LICENSE
-URL: https://github.com/brendensm/CDCPLACES
+URL: https://brendensm.github.io/, https://github.com/brendensm/CDCPLACES
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
