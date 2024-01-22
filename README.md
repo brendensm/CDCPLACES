@@ -28,4 +28,4 @@ devtools::install_github("brendensm/CDCPLACES")
 
 # Examples
 
-To view a complete walk through of the package, view the vignette found [here.](https://brendenmsmith.com/posts/introducing%20the%20places%20package/)
+To view a complete walk through of the package, view the vignette found [here.](https://brendenmsmith.com/posts/introducing%20the%20places%20package/) You can also view the pkgdown site [here.](https://brendensm.github.io/CDCPLACES/)
