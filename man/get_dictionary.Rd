@@ -14,9 +14,9 @@ This function provides the user with a data frame that shows all of the availabl
 #'
 }
 \examples{
-\dontrun{
+# First save the data
 dictionary <- get_dictionary()
-View(dictionary)
-}
+# Then view the data frame
+# View(dictionary)
 
 }
