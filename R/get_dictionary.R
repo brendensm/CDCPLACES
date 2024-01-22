@@ -6,10 +6,11 @@
 #'@importFrom jsonlite fromJSON
 #'@importFrom curl has_internet
 #'
-#'@examples \dontrun{
+#'@examples
+#'# First save the data
 #'dictionary <- get_dictionary()
-#'View(dictionary)
-#'}
+#'# Then view the data frame
+#'# View(dictionary)
 #'
 #'@export get_dictionary
 #'@returns a dataframe with the current PLACES data dictionary.

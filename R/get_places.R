@@ -313,11 +313,18 @@ check_states <- function(x){
 
 }
 
+
 #'check if api returns error, if so: fail gracefully.
 #'@param x The base url used in API query
 #'@noRd
 
 check_api <- function(x){
+
+  stop_quietly <- function() {
+    opt <- options(show.error.messages = FALSE)
+    on.exit(options(opt))
+    stop()
+  }
 
   try_GET <- function(x, ...) {
     tryCatch(
@@ -332,8 +339,52 @@ check_api <- function(x){
   if(httr::http_error(resp)){
     httr::message_for_status(resp)
     message("\nFor full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
-    return(invisible(NULL))
+    stop_quietly()
+    #return(invisible(NULL))
   }
+}
+
+
+#' internal test check to see if API is online
+#'@param x The base url used in API query
+#'@noRd
+test_check_api <- function(x){
+
+  try_GET <- function(x, ...) {
+    tryCatch(
+      httr::GET(url = x, httr::timeout(10), ...),
+      error = function(e) conditionMessage(e),
+      warning = function(w) conditionMessage(w)
+    )
+  }
+
+  resp <- try_GET(x)
+
+  if(httr::http_error(resp)){
+    httr::message_for_status(resp)
+    return(invisible(1))
+  }else{
+    return(invisible(0))
+  }
+
+}
+
+
+
+
+
+testfunc <- function(base){
+
+  check_api(base)
+
+  places1 <- httr2::request(base) |>
+    httr2::req_perform()
+
+  places_out <-  places1 |>
+    httr2::resp_body_string() |>
+    jsonlite::fromJSON() |>
+    tidyr::unnest(cols = geolocation) |>
+    dplyr::filter(stateabbr != "US")
 
 }
 
