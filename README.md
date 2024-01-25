@@ -1,5 +1,7 @@
 <!-- badges: start -->
   [![R-CMD-check](https://github.com/brendensm/CDCPLACES/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/brendensm/CDCPLACES/actions/workflows/R-CMD-check.yaml)
+  [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/CDCPLACES)](https://cran.r-project.org/package=CDCPLACES)
+
   <!-- badges: end -->
 
 # Functions to Access the 'CDC PLACES' API

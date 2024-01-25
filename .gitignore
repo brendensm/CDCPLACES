@@ -5,3 +5,5 @@
 .DS_Store
 .quarto
 docs
+CRAN-SUBMISSION
+cran-comments.md
