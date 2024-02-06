@@ -6,6 +6,7 @@
 #'@param state Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.
 #'@param measure Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.
 #'@param release Specify the year of release for the PLACES data set. Currently supports years 2020-2023.
+#'@param geometry if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.
 #'
 #'@examples
 #'get_places(geo = "county", state = "MI", measure = "SLEEP", release = "2023")
@@ -15,14 +16,18 @@
 #'@importFrom httr2 request req_perform resp_body_string
 #'@importFrom jsonlite fromJSON
 #'@importFrom tidyr unnest
-#'@importFrom dplyr filter rename mutate
+#'@importFrom dplyr filter rename mutate left_join select
 #'@importFrom httr http_error timeout GET message_for_status
 #'@importFrom curl has_internet
+#'@importFrom tigris counties tracts
+#'@importFrom sf st_as_sf
 #'
 #'@export get_places
 #'@returns A tibble that contains observations for each measure (adjusted and unadjusted prevalence) and geographic level.
 
-get_places <- function(geo = "county", state = NULL, measure = NULL, release = "2023"){
+get_places <- function(geo = "county", state = NULL, measure = NULL, release = "2023", geometry = FALSE){
+
+  # Assigning base url
 
   if(release == "2023"){
     if(geo == "county"){
@@ -80,10 +85,14 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
     stop("Release year is not available. Please enter a year 2020-2023.")
   }
 
+  # Check for internet
+
   if(!curl::has_internet()){
     message("Request could not be completed. No internet connection.")
     return(invisible(NULL))
   }
+
+  # Data pull
 
   if(is.null(state) & is.null(measure)){
 
@@ -258,6 +267,7 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
 
   }
 
+
   places_out$coordinates <- lapply(places_out$coordinates, function(x) as.data.frame(t(x)))
 
   places_out <- places_out |>
@@ -266,6 +276,58 @@ get_places <- function(geo = "county", state = NULL, measure = NULL, release = "
     dplyr::mutate(data_value = as.numeric(data_value),
                   low_confidence_limit = as.numeric(low_confidence_limit),
                   high_confidence_limit = as.numeric(high_confidence_limit))
+
+if(isTRUE(geometry)){
+
+
+
+  if(geo == "county"){
+
+    if(release == "2020"){
+
+      # add locationid for county 2020
+
+      fips <- tigris::fips_codes |>
+        dplyr::mutate(locationid = paste0(state_code, county_code),
+               locationname_p = paste0(county, ", ", state)) |>
+        dplyr::select(locationname_p, locationid)
+
+      places_out <- places_out |>
+        dplyr::mutate(locationname_p = paste0(locationname, " County, ", stateabbr))
+
+      places_out <- dplyr::left_join(places_out, fips, by = "locationname_p")
+
+      geo <- tigris::counties(state = state, year = 2020, cb = TRUE) |>
+        dplyr::select(GEOID, geometry)
+
+      places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID")) |>
+        sf::st_as_sf()
+
+
+    }else{
+
+      geo <- tigris::counties(state = state, year = 2020, cb = TRUE) |>
+        dplyr::select(GEOID, geometry)
+
+      places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID")) |>
+        sf::st_as_sf()
+
+    }
+
+
+
+  }else if(geo == "census"){
+
+    geo <- tigris::tracts(state = state, year = 2010) |>
+      dplyr::select(GEOID10, geometry)
+
+    places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID10")) |>
+      sf::st_as_sf()
+
+  }
+
+
+}
 
   return(places_out)
 
@@ -387,4 +449,7 @@ testfunc <- function(base){
     dplyr::filter(stateabbr != "US")
 
 }
+
+
+
 

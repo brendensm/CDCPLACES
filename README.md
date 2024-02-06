@@ -23,6 +23,11 @@ To install the latest development version run:
 devtools::install_github("brendensm/CDCPLACES")
 ```
 
+To install from CRAN:
+```r
+install.packages("CDCPLACES")
+```
+
 # Main Functions
 
 -   `get_places` &mdash; a function to query the PLACES API. Arguments allows the user to specify geography (census/county), state, measure, and release (2020-2023).

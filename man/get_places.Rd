@@ -4,7 +4,13 @@
 \alias{get_places}
 \title{Obtain data from the CDC PLACES APIs.}
 \usage{
-get_places(geo = "county", state = NULL, measure = NULL, release = "2023")
+get_places(
+  geo = "county",
+  state = NULL,
+  measure = NULL,
+  release = "2023",
+  geometry = FALSE
+)
 }
 \arguments{
 \item{geo}{The level of desired geography. Currently supports 'county' and 'census'.}
@@ -14,6 +20,8 @@ get_places(geo = "county", state = NULL, measure = NULL, release = "2023")
 \item{measure}{Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.}
 
 \item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2023.}
+
+\item{geometry}{if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.}
 }
 \value{
 A tibble that contains observations for each measure (adjusted and unadjusted prevalence) and geographic level.
