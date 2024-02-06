@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">CDCPLACES</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_places</span><span class="op">(</span>geo <span class="op">=</span> <span class="st">"county"</span>, state <span class="op">=</span> <span class="cn">NULL</span>, measure <span class="op">=</span> <span class="cn">NULL</span>, release <span class="op">=</span> <span class="st">"2023"</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_places</span><span class="op">(</span></span>
+<span>  geo <span class="op">=</span> <span class="st">"county"</span>,</span>
+<span>  state <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  measure <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  release <span class="op">=</span> <span class="st">"2023"</span>,</span>
+<span>  geometry <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,6 +73,10 @@
 
 <dt>release</dt>
 <dd><p>Specify the year of release for the PLACES data set. Currently supports years 2020-2023.</p></dd>
+
+
+<dt>geometry</dt>
+<dd><p>if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.</p></dd>
 
 </dl></div>
     <div class="section level2">
