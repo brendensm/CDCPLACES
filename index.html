@@ -42,6 +42,9 @@
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
+<li class="nav-item">
+  <a class="nav-link" href="news/index.html">Changelog</a>
+</li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
@@ -64,7 +67,7 @@
   <main id="main" class="col-md-9">
 <p><!-- badges: end --></p>
 <div class="section level1">
-<div class="page-header"><h1 id="functions-to-access-the-cdc-places-api">Functions to Access the ‘CDC PLACES’ API<a class="anchor" aria-label="anchor" href="#functions-to-access-the-cdc-places-api"></a>
+<div class="page-header"><h1 id="access-the-cdc-places-api">Access the ‘CDC PLACES’ API<a class="anchor" aria-label="anchor" href="#access-the-cdc-places-api"></a>
 </h1></div>
 <p>This package allows users to seamlessly query the Centers for Disease Control and Prevention’s (CDC) Population Level Analysis and Community Estimates (PLACES) API.</p>
 <p>From the <a href="https://www.cdc.gov/places/index.html" class="external-link">CDC’s website:</a> &gt;PLACES is a collaboration between CDC, the Robert Wood Johnson Foundation, and the CDC Foundation. PLACES provides health data for small areas across the country. This allows local health departments and jurisdictions, regardless of population size and rurality, to better understand the burden and geographic distribution of health measures in their areas and assist them in planning public health interventions. &gt; &gt;PLACES provides model-based, population-level analysis and community estimates of health measures to all counties, places (incorporated and census designated places), census tracts, and ZIP Code Tabulation Areas (ZCTAs) across the United States.</p>
@@ -85,7 +88,7 @@
 </h1>
 <ul>
 <li>
-<code>get_places</code> — a function to query the PLACES API. Arguments allows the user to specify geography (census/county), state, measure, and release (2020-2023).</li>
+<code>get_places</code> — a function to query the PLACES API. Arguments allows the user to specify geography (census/county), state, measure, release (2020-2023), and geometry (to include shapefiles).</li>
 <li>
 <code>get_dictionary</code> — a function to pull a full list of the measures available in the PLACES data set.</li>
 </ul>
