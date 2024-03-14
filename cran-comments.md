@@ -1,16 +1,13 @@
-## This is a resubmission of patch 1.1.4
+## This is an update to CDCPLACES
 
-This patch:
+## CDCPLACES 1.1.5
 
-* added functions to check for an internet connection and API status before testing.
+* Adds a `NEWS.md` file to track changes to the package.
+* Adds the argument 'geometry' to return sf data frame with shapefile for requested geography.
+* Adds the argument 'county' to filter query results by county name.
+* Changes the argument 'geo' to 'geography' for clarity.
 
-* added an if statement to check if the machine has an internet connection. If the machine is offline, an informative message if given and the function exits without error.
-
-* added the helper function 'check_api' to test whether the api is available. This function gives the user a helpful message if the response returns with an error code. Then, the function exits without error.
-
-* changed the format of the internal data sets used in the package.
-
-## R CMD check results
+### R CMD check results
 
 0 errors | 0 warnings | 0 notes
 

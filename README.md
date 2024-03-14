@@ -4,7 +4,7 @@
 
   <!-- badges: end -->
 
-# Functions to Access the 'CDC PLACES' API
+# Access the 'CDC PLACES' API
 
 This package allows users to seamlessly query the Centers for Disease Control and Prevention's (CDC) Population Level Analysis and Community Estimates (PLACES) API.
 
@@ -30,7 +30,7 @@ install.packages("CDCPLACES")
 
 # Main Functions
 
--   `get_places` &mdash; a function to query the PLACES API. Arguments allows the user to specify geography (census/county), state, measure, and release (2020-2023).
+-   `get_places` &mdash; a function to query the PLACES API. Arguments allows the user to specify geography (census/county), state, measure, release (2020-2023), and geometry (to include shapefiles).
 -   `get_dictionary` &mdash; a function to pull a full list of the measures available in the PLACES data set.
 
 # Examples

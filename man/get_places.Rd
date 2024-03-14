@@ -5,19 +5,22 @@
 \title{Obtain data from the CDC PLACES APIs.}
 \usage{
 get_places(
-  geo = "county",
+  geography = "county",
   state = NULL,
   measure = NULL,
+  county = NULL,
   release = "2023",
   geometry = FALSE
 )
 }
 \arguments{
-\item{geo}{The level of desired geography. Currently supports 'county' and 'census'.}
+\item{geography}{The level of desired geography. Currently supports 'county' and 'census'.}
 
 \item{state}{Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.}
 
 \item{measure}{Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.}
+
+\item{county}{Specify the county of the desired data using the full name of the county, with a capital letter.}
 
 \item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2023.}
 
@@ -30,8 +33,8 @@ A tibble that contains observations for each measure (adjusted and unadjusted pr
 Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
 }
 \examples{
-get_places(geo = "county", state = "MI", measure = "SLEEP", release = "2023")
-get_places(geo = "county", state = c("MI", "OH"),
+get_places(geography = "county", state = "MI", measure = "SLEEP", release = "2023")
+get_places(geography = "county", state = c("MI", "OH"),
 measure = c("SLEEP", "ACCESS2"), release = "2023")
 
 }

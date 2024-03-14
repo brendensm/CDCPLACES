@@ -5,4 +5,4 @@ utils::globalVariables(c("V1", "V2", "coordinates", "data_value", "geolocation",
                          "measures21", "measures20",
                          "stateabbr", "release", "state_code",
                          "county_code", "county", "locationid", "locationname_p",
-                         "locationname", "GEOID", "GEOID10"))
+                         "locationname", "GEOID", "GEOID10", "countyname"))

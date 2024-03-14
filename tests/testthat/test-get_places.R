@@ -96,7 +96,7 @@ if(isTRUE(curl::has_internet())){
 
     for (i in years){
       test_that(paste0("function access county api", i, "(multiple measures, multiple states), more measures"),{
-        expect_s3_class(get_places(geo = "county", state = c("WI", "OH"), measure = c("STROKE", "SLEEP", "DIABETES", "BINGE"), release = i), "data.frame")
+        expect_s3_class(get_places(geography = "county", state = c("WI", "OH"), measure = c("STROKE", "SLEEP", "DIABETES", "BINGE"), release = i), "data.frame")
       })
     }
 
@@ -106,14 +106,14 @@ if(isTRUE(curl::has_internet())){
 
     for (i in years){
       test_that(paste0("function accesses census api ", i, "(one state, one measure)"), {
-        expect_s3_class(get_places(geo = "census", state = "MI", measure = "SLEEP", release = i), "data.frame")
+        expect_s3_class(get_places(geography = "census", state = "MI", measure = "SLEEP", release = i), "data.frame")
       })
     }
 
     # census test for each year (multple states, one measure)
     for (i in years){
       test_that(paste0("function accesses census api", i, "(multiple states, one measure)"), {
-        expect_s3_class(get_places(geo = "census", state = c("OH", "WI"), measure = "ACCESS2"), "data.frame")
+        expect_s3_class(get_places(geography = "census", state = c("OH", "WI"), measure = "ACCESS2"), "data.frame")
       })
     }
 
@@ -121,7 +121,7 @@ if(isTRUE(curl::has_internet())){
     # census test for each year (multiple measures, one state)
     for (i in years){
       test_that(paste0("function access census api", i, "(multiple measures, one state)"),{
-        expect_s3_class(get_places(geo = "census", state = c("WI"), measure = c("STROKE", "SLEEP"), release = i), "data.frame")
+        expect_s3_class(get_places(geography = "census", state = c("WI"), measure = c("STROKE", "SLEEP"), release = i), "data.frame")
       })
     }
 
@@ -130,13 +130,13 @@ if(isTRUE(curl::has_internet())){
 
     for (i in years){
       test_that(paste0("function access census api", i, "(multiple measures, multiple states), more states"),{
-        expect_s3_class(get_places(geo = "census", state = c("WI", "OH", "MI", "CA"), measure = c("STROKE", "SLEEP"), release = i), "data.frame")
+        expect_s3_class(get_places(geography = "census", state = c("WI", "OH", "MI", "CA"), measure = c("STROKE", "SLEEP"), release = i), "data.frame")
       })
     }
 
     for (i in years){
       test_that(paste0("function access census api", i, "(multiple measures, multiple states), more measures"),{
-        expect_s3_class(get_places(geo = "census", state = c("WI", "OH"), measure = c("DIABETES", "SLEEP", "STROKE", "BINGE"), release = i), "data.frame")
+        expect_s3_class(get_places(geography = "census", state = c("WI", "OH"), measure = c("DIABETES", "SLEEP", "STROKE", "BINGE"), release = i), "data.frame")
       })
     }
 
