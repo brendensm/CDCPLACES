@@ -123,13 +123,13 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
                                                         crosswalk$county_name %in% paste(tolower(county), "county"),]$zcta)
       }else{
 
-        zlist <- unique(crosswalk[crosswalk$state_usps %in% state &
-                                    crosswalk$county_name %in% paste(tolower(county), "county"),]$zcta)
+        stop("Only one state can currently be queried at a time.")
 
-       # stop("Only one state can currently be queried.")
+
+      }
       }
 
-    }
+
 
     if(is.null(state) & is.null(measure)){
 
@@ -168,11 +168,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
     if(isTRUE(geometry)){
 
-      geo <- tigris::zctas(state = state, year = 2010) |>
-        dplyr::select(ZCTA5CE10, geometry)
+        geo <- tigris::zctas(state = state, year = 2010) |>
+          dplyr::select(ZCTA5CE10, geometry)
 
-      places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "ZCTA5CE10")) |>
-        sf::st_as_sf()
+        places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "ZCTA5CE10")) |>
+          sf::st_as_sf()
 
     }
 
