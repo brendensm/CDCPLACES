@@ -2,7 +2,7 @@
 #'
 #'Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
 #'
-#'@param geography The level of desired geography. Currently supports 'county' and 'census'.
+#'@param geography The level of desired geography. Currently supports 'county', 'census', and 'zcta'.
 #'@param state Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.
 #'@param measure Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.
 #'@param county Specify the county of the desired data using the full name of the county, with a capital letter.
@@ -40,8 +40,12 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       base <- "https://data.cdc.gov/resource/cwsq-ngmh.json"
 
+    }else if(geography == "zcta"){
+
+      base <- "https://data.cdc.gov/resource/qnzd-25i4.json?$query=SELECT%20year%2C%20locationname%2C%20datasource%2C%20category%2C%20measure%2C%20data_value_unit%2C%20data_value_type%2C%20data_value%2C%20data_value_footnote_symbol%2C%20data_value_footnote%2C%20low_confidence_limit%2C%20high_confidence_limit%2C%20totalpopulation%2C%20geolocation%2C%20locationid%2C%20categoryid%2C%20measureid%2C%20datavaluetypeid%2C%20short_question_text%20"
+
     }else{
-      stop("Geographic level not supported. Please enter 'census' or 'county'.")
+      stop("Geographic level not supported. Please enter 'census', 'county', or 'zcta'.")
     }
 
   }else if(release == "2022"){
@@ -94,8 +98,94 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
     return(invisible(NULL))
   }
 
+  # add tests for measures and api?
+
   # Data pull
   # if county is null
+
+  if(geography == "zcta"){
+
+    check_api(base)
+    crosswalk <- zctaCrosswalk::zcta_crosswalk
+
+    if(is.null(county)){
+
+      if(length(state) == 1){
+        zlist <- unique(crosswalk[crosswalk$state_usps == state,]$zcta)
+      }else{
+        stop("Only one state can currently be queried.")
+      }
+
+    }else{
+
+      if(length(state) == 1){
+        zlist <- unique(crosswalk[crosswalk$state_usps == state &
+                                                        crosswalk$county_name %in% paste(tolower(county), "county"),]$zcta)
+      }else{
+
+        zlist <- unique(crosswalk[crosswalk$state_usps %in% state &
+                                    crosswalk$county_name %in% paste(tolower(county), "county"),]$zcta)
+
+       # stop("Only one state can currently be queried.")
+      }
+
+    }
+
+    if(is.null(state) & is.null(measure)){
+
+      stop("You must select a state to query ZCTA data.")
+
+    }else if (is.null(state)){
+      stop("You must select a state to query ZCTA data.")
+    }else if(is.null(measure)){
+
+      places1 <- paste0(base, formatted_zctas(zlist), "%20LIMIT%2050000") |>
+      httr2::request() |>
+        #httr2::req_options(noprogress = F) |>
+        httr2::req_perform()
+
+      places_out <-  places1 |>
+        httr2::resp_body_string() |>
+        jsonlite::fromJSON()
+
+      #return(places_out)
+
+    }else{
+
+      places1 <- paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%2050000") |>
+        httr2::request() |>
+       # httr2::req_options(noprogress = F) |>
+        httr2::req_perform()
+
+      places_out <-  places1 |>
+        httr2::resp_body_string() |>
+        jsonlite::fromJSON()
+
+     # return(places_out)
+    }
+
+    places_out[8:11] <- lapply(places_out[8:11], as.numeric)
+
+    if(isTRUE(geometry)){
+
+      geo <- tigris::zctas(state = state, year = 2010) |>
+        dplyr::select(ZCTA5CE10, geometry)
+
+      places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "ZCTA5CE10")) |>
+        sf::st_as_sf()
+
+    }
+
+
+
+    return(places_out)
+
+
+    #############################################################
+
+
+  }
+
   if(is.null(county)){
 
     if(is.null(state) & is.null(measure)){
@@ -626,6 +716,68 @@ testfunc <- function(base){
     jsonlite::fromJSON() |>
     tidyr::unnest(cols = geolocation) |>
     dplyr::filter(stateabbr != "US")
+
+}
+
+
+
+formatted_zctas <- function(my_vector) {
+
+  firstprefix <- "WHERE%20((upper(%60locationname%60)%20LIKE%20'%25"
+  firstsuffix <- "%25')%20"
+
+  # Define the prefix and suffix
+  bodyprefix <- "OR%20(upper(%60locationname%60)%20LIKE%20'%25"
+  bodysuffix <- "%25')%20"
+
+  lastsuffix <- "%25'))"
+
+  first_vec <- my_vector[1]
+
+  last_vec <- my_vector[length(my_vector)]
+
+  body <- my_vector[2:(length(my_vector)-1)]
+
+
+  part_one <- paste0(firstprefix, first_vec, firstsuffix, collapse = "")
+
+  part_two <- paste0(bodyprefix, body, bodysuffix, collapse = "")
+
+  part_three <- paste0(bodyprefix, last_vec, lastsuffix, collapse = "")
+
+  # Concatenate the elements of the vector with the prefix and suffix
+  formatted_strings <- paste0(part_one, part_two, part_three, collapse = "")
+
+  return(formatted_strings)
+}
+
+
+measure_text <- function(measure){
+
+  if(length(measure) == 1){
+    paste0("%20AND%20((%60measureid%60%20%3D%20'", measure, "'))", collapse = "")
+
+  }else if(length(measure) < 3){
+    first_measure <- measure[1]
+    last_measure <- measure[length(measure)]
+
+    paste0("%20AND%20((%60measureid%60%20%3D%20'", first_measure, "')%20",
+           "OR%20(upper(%60measureid%60)%20LIKE%20'%25", last_measure, "%25'))")
+
+  }else if(length(measure) >= 3){
+
+    first_measure <- measure[1]
+    last_measure <- measure[length(measure)]
+
+    middle <- measure[2:(length(measure) - 1)]
+
+    one <- paste0("%20AND%20((%60measureid%60%20%3D%20'", first_measure, "')%20")
+    two <- paste0("OR%20(upper(%60measureid%60)%20LIKE%20'%25", middle, "%25')", collapse = "")
+    three <- paste0("OR%20(upper(%60measureid%60)%20LIKE%20'%25", last_measure, "%25'))")
+
+    return(paste0(one, two, three, collapse = ""))
+
+  }
 
 }
 

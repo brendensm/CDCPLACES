@@ -14,7 +14,7 @@ get_places(
 )
 }
 \arguments{
-\item{geography}{The level of desired geography. Currently supports 'county' and 'census'.}
+\item{geography}{The level of desired geography. Currently supports 'county', 'census', and 'zcta'.}
 
 \item{state}{Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.}
 
