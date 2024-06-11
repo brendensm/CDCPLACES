@@ -22,6 +22,7 @@
 #'@importFrom curl has_internet
 #'@importFrom tigris counties tracts
 #'@importFrom sf st_as_sf
+#'@importFrom zctaCrosswalk zcta_crosswalk
 #'
 #'@export get_places
 #'@returns A tibble that contains observations for each measure (adjusted and unadjusted prevalence) and geographic level.
@@ -144,9 +145,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         #httr2::req_options(noprogress = F) |>
         httr2::req_perform()
 
-      places_out <-  places1 |>
-        httr2::resp_body_string() |>
-        jsonlite::fromJSON()
+      places_out <-  parse_request(places1)
 
       #return(places_out)
 
@@ -157,9 +156,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
        # httr2::req_options(noprogress = F) |>
         httr2::req_perform()
 
-      places_out <-  places1 |>
-        httr2::resp_body_string() |>
-        jsonlite::fromJSON()
+      places_out <- parse_request(places1)
 
      # return(places_out)
     }
@@ -197,10 +194,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       places1 <- httr2::request(base) |>
         httr2::req_perform()
 
-      places_out <-  places1 |>
-        httr2::resp_body_string() |>
-        jsonlite::fromJSON() |>
-        tidyr::unnest(cols = geolocation) |>
+      places_out <-  parse_request(places1) |>
         dplyr::filter(stateabbr != "US")
 
     }else if(is.null(measure)){
@@ -216,10 +210,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", i)) |>
           httr2::req_perform()
 
-        places_out_add <- places1 |>
-          httr2::resp_body_string() |>
-          jsonlite::fromJSON() |>
-          tidyr::unnest(cols = geolocation)
+        places_out_add <- parse_request(places1)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -239,11 +230,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         places1 <- httr2::request(paste0(base, "?$limit=5000000", "&measureid=", i)) |>
           httr2::req_perform()
 
-        places_out_add <- places1 |>
-          httr2::resp_body_string() |>
-          jsonlite::fromJSON() |>
-          tidyr::unnest(cols = geolocation) |>
-          dplyr::filter(stateabbr != "US")
+        places_out_add <- parse_request(places1)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -271,10 +258,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
               httr2::request() |>
               httr2::req_perform()
 
-            places_out_add <- places1 |>
-              httr2::resp_body_string() |>
-              jsonlite::fromJSON() |>
-              tidyr::unnest(cols = geolocation)
+            places_out_add <- parse_request(places1)
 
             places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -294,10 +278,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
               httr2::request() |>
               httr2::req_perform()
 
-            places_out_add <- places1 |>
-              httr2::resp_body_string() |>
-              jsonlite::fromJSON() |>
-              tidyr::unnest(cols = geolocation)
+            places_out_add <- parse_request(places1)
 
             places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -325,10 +306,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         places1 <- httr2::request(base_url) |>
           httr2::req_perform()
 
-        places_out_add <- places1 |>
-          httr2::resp_body_string() |>
-          jsonlite::fromJSON() |>
-          tidyr::unnest(cols = geolocation)
+        places_out_add <- parse_request(places1)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -350,10 +328,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
           httr2::req_perform()
 
-        places_out_add <- places1 |>
-          httr2::resp_body_string() |>
-          jsonlite::fromJSON() |>
-          tidyr::unnest(cols = geolocation)
+        places_out_add <- parse_request(places1)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -382,10 +357,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", i)) |>
           httr2::req_perform()
 
-        places_out_add <- places1 |>
-          httr2::resp_body_string() |>
-          jsonlite::fromJSON() |>
-          tidyr::unnest(cols = geolocation)
+        places_out_add <- parse_request(places1)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -418,10 +390,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
               httr2::request() |>
               httr2::req_perform()
 
-            places_out_add <- places1 |>
-              httr2::resp_body_string() |>
-              jsonlite::fromJSON() |>
-              tidyr::unnest(cols = geolocation)
+            places_out_add <- parse_request(places1)
 
             places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -441,10 +410,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
               httr2::request() |>
               httr2::req_perform()
 
-            places_out_add <- places1 |>
-              httr2::resp_body_string() |>
-              jsonlite::fromJSON() |>
-              tidyr::unnest(cols = geolocation)
+            places_out_add <- parse_request(places1)
 
             places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -472,10 +438,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         places1 <- httr2::request(base_url) |>
           httr2::req_perform()
 
-        places_out_add <- places1 |>
-          httr2::resp_body_string() |>
-          jsonlite::fromJSON() |>
-          tidyr::unnest(cols = geolocation)
+        places_out_add <- parse_request(places1)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -497,10 +460,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
           httr2::req_perform()
 
-        places_out_add <- places1 |>
-          httr2::resp_body_string() |>
-          jsonlite::fromJSON() |>
-          tidyr::unnest(cols = geolocation)
+        places_out_add <- parse_request(places1)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -525,11 +485,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
     }
   }
 
-  places_out$coordinates <- lapply(places_out$coordinates, function(x) as.data.frame(t(x)))
+ # places_out$coordinates <- lapply(places_out$coordinates, function(x) as.data.frame(t(x)))
 
   places_out <- places_out |>
-    tidyr::unnest(coordinates) |>
-    dplyr::rename(lon = V1, lat = V2) |>
+    #tidyr::unnest(coordinates) |>
+    #dplyr::rename(lon = V1, lat = V2) |>
     dplyr::mutate(data_value = as.numeric(data_value),
                   low_confidence_limit = as.numeric(low_confidence_limit),
                   high_confidence_limit = as.numeric(high_confidence_limit))
@@ -703,24 +663,9 @@ test_check_api <- function(x){
 
 
 
-
-testfunc <- function(base){
-
-  check_api(base)
-
-  places1 <- httr2::request(base) |>
-    httr2::req_perform()
-
-  places_out <-  places1 |>
-    httr2::resp_body_string() |>
-    jsonlite::fromJSON() |>
-    tidyr::unnest(cols = geolocation) |>
-    dplyr::filter(stateabbr != "US")
-
-}
-
-
-
+#'pastes together the required url to query the API from a state/county's ZCTAs.
+#'@param my_vector vector of zip codes to add to the query
+#'@noRd
 formatted_zctas <- function(my_vector) {
 
   firstprefix <- "WHERE%20((upper(%60locationname%60)%20LIKE%20'%25"
@@ -751,7 +696,9 @@ formatted_zctas <- function(my_vector) {
   return(formatted_strings)
 }
 
-
+#'pastes together the required measures to query the API for a ZCTA query.
+#'@param my_vector vector of zip codes to add to the query
+#'@noRd
 measure_text <- function(measure){
 
   if(length(measure) == 1){
@@ -781,6 +728,24 @@ measure_text <- function(measure){
 
 }
 
+
+
+#'parses the json of a the httr2 request
+#'@param x httr2 request object
+#'@noRd
+parse_request <- function(x){
+
+  # out <- x |>
+  #   httr2::resp_body_string() |>
+  #   RcppSimdJson::fparse()
+
+  x |>
+  httr2::resp_body_string() |>
+  jsonlite::fromJSON() |>
+  tidyr::unnest(cols = geolocation)
+
+
+}
 
 
 
