@@ -15,13 +15,13 @@
 #'measure = c("SLEEP", "ACCESS2"), release = "2023")
 #'
 #'@importFrom httr2 request req_perform resp_body_string
-#'@importFrom jsonlite fromJSON
 #'@importFrom tidyr unnest
 #'@importFrom dplyr filter rename mutate left_join select
 #'@importFrom httr http_error timeout GET message_for_status
 #'@importFrom curl has_internet
 #'@importFrom tigris counties tracts
 #'@importFrom sf st_as_sf
+#'@importFrom yyjsonr read_json_str
 #'@importFrom zctaCrosswalk zcta_crosswalk
 #'
 #'@export get_places
@@ -741,7 +741,7 @@ parse_request <- function(x){
 
   x |>
   httr2::resp_body_string() |>
-  jsonlite::fromJSON() |>
+  yyjsonr::read_json_str()  |>
   tidyr::unnest(cols = geolocation)
 
 

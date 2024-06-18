@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 URL: https://github.com/brendensm/CDCPLACES, https://brendensm.github.io/CDCPLACES/
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -20,10 +20,11 @@ Imports:
   dplyr,
   httr,
   httr2,
-  jsonlite,
+  yyjsonr,
   tidyr,
   tigris, 
   sf,
-  usa
+  usa,
+  zctaCrosswalk
 Depends: 
     R (>= 2.10)
