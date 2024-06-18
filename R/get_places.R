@@ -15,7 +15,7 @@
 #'measure = c("SLEEP", "ACCESS2"), release = "2023")
 #'
 #'@importFrom httr2 request req_perform resp_body_string
-#'@importFrom tidyr unnest
+#'@importFrom tidyr unnest_wider
 #'@importFrom dplyr filter rename mutate left_join select
 #'@importFrom httr http_error timeout GET message_for_status
 #'@importFrom curl has_internet
@@ -44,6 +44,8 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
     }else if(geography == "zcta"){
 
       base <- "https://data.cdc.gov/resource/qnzd-25i4.json?$query=SELECT%20year%2C%20locationname%2C%20datasource%2C%20category%2C%20measure%2C%20data_value_unit%2C%20data_value_type%2C%20data_value%2C%20data_value_footnote_symbol%2C%20data_value_footnote%2C%20low_confidence_limit%2C%20high_confidence_limit%2C%20totalpopulation%2C%20geolocation%2C%20locationid%2C%20categoryid%2C%20measureid%2C%20datavaluetypeid%2C%20short_question_text%20"
+
+
 
     }else{
       stop("Geographic level not supported. Please enter 'census', 'county', or 'zcta'.")
@@ -142,18 +144,14 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       places1 <- paste0(base, formatted_zctas(zlist), "%20LIMIT%2050000") |>
       httr2::request() |>
-        #httr2::req_options(noprogress = F) |>
         httr2::req_perform()
 
       places_out <-  parse_request(places1)
-
-      #return(places_out)
 
     }else{
 
       places1 <- paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%2050000") |>
         httr2::request() |>
-       # httr2::req_options(noprogress = F) |>
         httr2::req_perform()
 
       places_out <- parse_request(places1)
@@ -488,8 +486,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
  # places_out$coordinates <- lapply(places_out$coordinates, function(x) as.data.frame(t(x)))
 
   places_out <- places_out |>
-    #tidyr::unnest(coordinates) |>
-    #dplyr::rename(lon = V1, lat = V2) |>
     dplyr::mutate(data_value = as.numeric(data_value),
                   low_confidence_limit = as.numeric(low_confidence_limit),
                   high_confidence_limit = as.numeric(high_confidence_limit))
@@ -742,7 +738,10 @@ parse_request <- function(x){
   x |>
   httr2::resp_body_string() |>
   yyjsonr::read_json_str()  |>
-  tidyr::unnest(cols = geolocation)
+  tidyr::unnest_wider(col = c(geolocation)) |>
+  tidyr::unnest_wider(col = coordinates, names_sep = "_") |>
+  dplyr::rename(lon = coordinates_1,
+                  lat = coordinates_2)
 
 
 }
