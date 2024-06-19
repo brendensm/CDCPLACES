@@ -27,7 +27,7 @@ get_places(
 \item{geometry}{if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.}
 }
 \value{
-A tibble that contains observations for each measure (adjusted and unadjusted prevalence) and geographic level.
+A tibble that contains observations for each measure (age-adjusted and unadjusted prevalence for counties) and geographic level.
 }
 \description{
 Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
