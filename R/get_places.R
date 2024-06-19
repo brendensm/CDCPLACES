@@ -25,7 +25,7 @@
 #'@importFrom zctaCrosswalk zcta_crosswalk
 #'
 #'@export get_places
-#'@returns A tibble that contains observations for each measure (adjusted and unadjusted prevalence) and geographic level.
+#'@returns A tibble that contains observations for each measure (age-adjusted and unadjusted prevalence for counties) and geographic level.
 
 get_places <- function(geography = "county", state = NULL, measure = NULL, county = NULL,
                        release = "2023", geometry = FALSE){
@@ -116,7 +116,10 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       if(length(state) == 1){
         zlist <- unique(crosswalk[crosswalk$state_usps == state,]$zcta)
       }else{
-        stop("Only one state can currently be queried.")
+        #stop("Only one state can currently be queried.")
+
+        zlist <- unique(crosswalk[crosswalk$state_usps %in% state,]$zcta)
+
       }
 
     }else{
@@ -126,7 +129,9 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
                                                         crosswalk$county_name %in% paste(tolower(county), "county"),]$zcta)
       }else{
 
-        stop("Only one state can currently be queried at a time.")
+        #stop("Only one state can currently be queried at a time.")
+
+        zlist <- check_multiples(state, county)
 
 
       }
@@ -139,7 +144,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       stop("You must select a state to query ZCTA data.")
 
     }else if (is.null(state)){
-      stop("You must select a state to query ZCTA data.")
+      stop("You must select at least one state to query ZCTA data.")
     }else if(is.null(measure)){
 
       places1 <- paste0(base, formatted_zctas(zlist), "%20LIMIT%2050000") |>
@@ -163,8 +168,19 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
     if(isTRUE(geometry)){
 
-        geo <- tigris::zctas(state = state, year = 2010) |>
-          dplyr::select(ZCTA5CE10, geometry)
+      geo <- data.frame()
+
+        for(i in state){
+
+          geo_add <- tigris::zctas(state = i, year = 2010) |>
+            dplyr::select(ZCTA5CE10, geometry)
+
+          geo <- rbind(geo, geo_add)
+
+        }
+
+        # geo <- tigris::zctas(state = state, year = 2010) |>
+        #   dplyr::select(ZCTA5CE10, geometry)
 
         places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "ZCTA5CE10")) |>
           sf::st_as_sf()
@@ -467,10 +483,13 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
     }
   }
 
-  # Spatial data transformations
 
   if(!is.null(county)){
-    if(geography == "county"){
+
+     if(geography == "county"){
+
+
+      #output the filtered data with a new function
 
       places_out <- places_out |>
         filter(locationname %in% county)
@@ -481,9 +500,12 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         filter(countyname %in% county)
 
     }
+
+  places_out <- check_multiples_cc(state, county, places_out, geography)
+
+
   }
 
- # places_out$coordinates <- lapply(places_out$coordinates, function(x) as.data.frame(t(x)))
 
   places_out <- places_out |>
     dplyr::mutate(data_value = as.numeric(data_value),
@@ -747,4 +769,135 @@ parse_request <- function(x){
 }
 
 
+
+
+check_multiples <- function(state, county){
+
+  crosswalk <- zctaCrosswalk::zcta_crosswalk
+
+  trial <- crosswalk[crosswalk$state_usps %in% state  &
+                       crosswalk$county_name %in% paste(tolower(county), "county"),]
+
+  initial_sum <- trial |>
+    dplyr::count(county_name, state_usps)
+  final_sum <- initial_sum |>
+    dplyr::count(county_name)
+
+  if(nrow(final_sum > 0)){
+
+    if(max(final_sum$n) > 1){
+      message("You have overlapping county names.")
+      print(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, -3])
+
+      message("Do you want to include overlaps?")
+      response1 <- readline("Response (y/n):  ")
+
+      if(response1 == "y"){
+        message("OK, we will include all counties.")
+
+        trial$zcta
+
+        # return() the full zlist
+
+      }else{
+
+        message("Which should we exclude? Please respond with the state abbreviation(s) to filter out. If you have multiple states, please separate with a space (ex. 'NY TX').")
+
+        response2 <- readline("Response:  ")
+
+        if(nchar(response2) > 2){
+
+          sep_response <- strsplit(response2, split = " ")[[1]]
+
+          return(
+
+            filter(trial, !(county_name %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, -3]$county_name) & state_usps %in% sep_response))$zcta
+          )
+
+        }else{
+          filter(trial, !(county_name %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, -3]$county_name) & state_usps %in% response2))$zcta
+
+        }
+
+
+      }
+
+    }
+
+  }
+
+}
+
+
+
+check_multiples_cc <- function(state, county, places, geography){
+
+  crosswalk <- zctaCrosswalk::zcta_crosswalk
+
+  trial <- crosswalk[crosswalk$state_usps %in% state  &
+                       crosswalk$county_name %in% paste(tolower(county), "county"),]
+
+  initial_sum <- trial |>
+    dplyr::count(county_name, state_usps, county_fips)
+  final_sum <- initial_sum |>
+    dplyr::count(county_name)
+
+  if(nrow(final_sum > 0)){
+
+    if(max(final_sum$n) > 1){
+      message("You have overlapping county names.")
+      print(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, -3])
+
+      message("Do you want to include overlaps?")
+      response1 <- readline("Response (y/n):  ")
+
+      if(response1 == "y"){
+        message("OK, we will include all counties.")
+
+        places
+
+      }else{
+
+        message("Which should we exclude? Please respond with the state abbreviation(s) to filter out. If you have multiple states, please separate with a space (ex. 'NY TX').")
+
+        response2 <- readline("Response:  ")
+
+        if(nchar(response2) > 2){
+
+          sep_response <- strsplit(response2, split = " ")[[1]]
+
+
+            if(geography == "county"){
+              filter(places, !(stateabbr %in% sep_response & locationid %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, ])$county_fips))
+
+
+            }else if (geography == "census"){
+              filter(places, !(stateabbr %in% sep_response & countyfips %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, ])$county_fips))
+
+            }
+
+        }else{
+
+
+          if(geography == "county"){
+            filter(places, !(stateabbr %in% response2 & locationid %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, ])$county_fips))
+
+
+          }else if (geography == "census"){
+            filter(places, !(stateabbr %in% response2 & countyfips %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, ])$county_fips))
+
+          }
+
+
+
+        }
+
+
+      }
+
+    }
+
+  }
+
+}
 
