@@ -3,7 +3,7 @@
 #' This function provides the user with a data frame that shows all of the available measures in the PLACES data set and for which release years the measures are included.
 #'#'
 #'@importFrom httr2 request req_perform resp_body_string
-#'@importFrom jsonlite fromJSON
+#'@importFrom yyjsonr read_json_str
 #'@importFrom curl has_internet
 #'
 #'@examples
@@ -29,5 +29,5 @@ get_dictionary <- function(){
 
   resp |>
     httr2::resp_body_string() |>
-    jsonlite::fromJSON()
+    yyjsonr::read_json_str()
 }

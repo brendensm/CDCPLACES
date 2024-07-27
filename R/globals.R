@@ -5,4 +5,12 @@ utils::globalVariables(c("V1", "V2", "coordinates", "data_value", "geolocation",
                          "measures21", "measures20",
                          "stateabbr", "release", "state_code",
                          "county_code", "county", "locationid", "locationname_p",
-                         "locationname", "GEOID", "GEOID10", "countyname"))
+                         "locationname", "GEOID", "GEOID10", "countyname",
+                         "zcta_crosswalk", "ZCTA5CE10", "coordinates_1",
+                         "coordinates_2",
+                         "county_fips",
+                         "county_name",
+                         "countyfips",
+                         "state_usps"))
+
+
