@@ -1,11 +1,10 @@
 ## This is an update to CDCPLACES
 
-## CDCPLACES 1.1.5
+## CDCPLACES 1.1.6
 
-* Adds a `NEWS.md` file to track changes to the package.
-* Adds the argument 'geometry' to return sf data frame with shapefile for requested geography.
-* Adds the argument 'county' to filter query results by county name.
-* Changes the argument 'geo' to 'geography' for clarity.
+* Added functionality to query ZCTA-level data. This is available by setting the 'geography' argument to 'zcta'.
+* Added a mechanism to check for overlapping county names. This is useful for querying all levels of data.
+* Changed the dependency used to parse JSON data, improving the performance of querying data.
 
 ### R CMD check results
 
