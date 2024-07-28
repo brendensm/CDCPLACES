@@ -553,11 +553,35 @@ if(isTRUE(geometry)){
 
   }else if(geography == "census"){
 
-    geo <- tigris::tracts(state = state, year = 2010) |>
-      dplyr::select(GEOID10, geometry)
+    if(is.null(state)){
+      stop("You must provide state names in order to add shapefiles to this query.", call. = FALSE)
+    }else if(length(state) > 1){
 
-    places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID10")) |>
-      sf::st_as_sf()
+      geo <- data.frame()
+
+      for (i in state){
+
+        geo_add <- tigris::tracts(state = i, year = 2010) |>
+          dplyr::select(GEOID10, geometry)
+
+        geo <- rbind(geo, geo_add)
+
+      }
+
+      places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID10")) |>
+        sf::st_as_sf()
+
+    }else{
+
+      geo <- tigris::tracts(state = state, year = 2010) |>
+        dplyr::select(GEOID10, geometry)
+
+      places_out <- dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID10")) |>
+        sf::st_as_sf()
+
+
+    }
+
 
   }
 
@@ -770,7 +794,10 @@ parse_request <- function(x){
 
 
 
-
+#'checks if returned zcta data has overlapping county names
+#'@param state names of states given in get_places call
+#'@param county names of counties given in get_places call
+#'@noRd
 check_multiples <- function(state, county){
 
   crosswalk <- zctaCrosswalk::zcta_crosswalk
@@ -829,7 +856,12 @@ check_multiples <- function(state, county){
 }
 
 
-
+#'checks if returned county/census data contains overlapping county names
+#'@param state names of states given in get_places call
+#'@param county names of counties given in get_places call
+#'@param places the queried places data
+#'@param geography the geographical level given in get_places call
+#'@noRd
 check_multiples_cc <- function(state, county, places, geography){
 
   crosswalk <- zctaCrosswalk::zcta_crosswalk
