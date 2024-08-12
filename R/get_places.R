@@ -799,7 +799,7 @@ parse_request <- function(x){
   #   httr2::resp_body_string() |>
   #   RcppSimdJson::fparse()
 
-  x |>
+  parsed <- x |>
   #curl::curl_fetch_memory() |>
   # httr2::resp_body_string() |>
   # httr2::resp_body_raw() |>
@@ -810,6 +810,13 @@ parse_request <- function(x){
   #dplyr::rename(lon = coordinates_1,
  #                 lat = coordinates_2)
 
+  unnest <- do.call(rbind, lapply(parsed$geolocation, function(x){
+    data.frame(lon = x[[2]][1], lat = x[[2]][2])
+  }))
+
+  parsed_and_unnested <- cbind(parsed, unnest)
+
+  parsed_and_unnested[,!(names(parsed_and_unnested) %in% "geolocation")]
 
   # wide_df <- do.call(rbind, lapply(list_column, as.data.frame))
 
