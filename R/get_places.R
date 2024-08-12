@@ -364,6 +364,8 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
     lapply(county, check_counties)
 
+    ## Mayeb here?##################################################
+
     if(is.null(state) & is.null(measure)){
 
       stop("If querying counties, you must supply the argument 'state'.")
@@ -514,21 +516,25 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
     }else if(geography == "census"){
 
+
       places_out <- places_out |>
         filter(countyname %in% county)
 
     }
 
-  places_out <- check_multiples_cc(state, county, places_out, geography)
+
+  if(length(state) > 1){
+     places_out <- check_multiples_cc(state, county, places_out, geography)
+  }
 
 
   }
 
 
-  places_out <- places_out |>
-    dplyr::mutate(data_value = as.numeric(data_value),
-                  low_confidence_limit = as.numeric(low_confidence_limit),
-                  high_confidence_limit = as.numeric(high_confidence_limit))
+ places_out <- places_out |>
+  dplyr::mutate(data_value = as.numeric(data_value),
+                low_confidence_limit = as.numeric(low_confidence_limit),
+                high_confidence_limit = as.numeric(high_confidence_limit))
 
 if(isTRUE(geometry)){
 
