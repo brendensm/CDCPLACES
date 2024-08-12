@@ -148,18 +148,20 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
     }else if(is.null(measure)){
 
       places1 <- paste0(base, formatted_zctas(zlist), "%20LIMIT%2050000") |>
-      httr2::request() |>
-        httr2::req_perform()
+        curl::curl_fetch_memory()
+        #httr2::request() |>
+        #httr2::req_perform()
 
-      places_out <-  parse_request(places1)
+      places_out <-  parse_request(places1$content)
 
     }else{
 
       places1 <- paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%2050000") |>
-        httr2::request() |>
-        httr2::req_perform()
+        curl::curl_fetch_memory()
+        #httr2::request() |>
+        #httr2::req_perform()
 
-      places_out <- parse_request(places1)
+      places_out <- parse_request(places1$content)
 
      # return(places_out)
     }
@@ -205,10 +207,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       check_api(base)
 
-      places1 <- httr2::request(base) |>
-        httr2::req_perform()
+      places1 <- curl::curl_fetch_memory(base)
+        #httr2::request(base) |>
+        #httr2::req_perform()
 
-      places_out <-  parse_request(places1) |>
+      places_out <-  parse_request(places1$content) |>
         dplyr::filter(stateabbr != "US")
 
     }else if(is.null(measure)){
@@ -221,10 +224,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       for(i in state){
 
-        places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", i)) |>
-          httr2::req_perform()
+        places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", i))
+          #httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", i)) |>
+          #httr2::req_perform()
 
-        places_out_add <- parse_request(places1)
+        places_out_add <- parse_request(places1$content)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -241,10 +245,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       for(i in measure){
 
-        places1 <- httr2::request(paste0(base, "?$limit=5000000", "&measureid=", i)) |>
-          httr2::req_perform()
+        places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&measureid=", i))
+          #httr2::request(paste0(base, "?$limit=5000000", "&measureid=", i)) |>
+          #httr2::req_perform()
 
-        places_out_add <- parse_request(places1)
+        places_out_add <- parse_request(places1$content)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -269,10 +274,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
           for(b in seq(state)){
 
             places1 <- p1[b] |>
-              httr2::request() |>
-              httr2::req_perform()
+              curl::curl_fetch_memory()
+              #httr2::request() |>
+              #httr2::req_perform()
 
-            places_out_add <- parse_request(places1)
+            places_out_add <- parse_request(places1$content)
 
             places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -289,10 +295,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
           for(b in seq(measure)){
 
             places1 <- p1[b] |>
-              httr2::request() |>
-              httr2::req_perform()
+              curl::curl_fetch_memory()
+              #httr2::request() |>
+              #httr2::req_perform()
 
-            places_out_add <- parse_request(places1)
+            places_out_add <- parse_request(places1$content)
 
             places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -317,10 +324,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
         base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
 
-        places1 <- httr2::request(base_url) |>
-          httr2::req_perform()
+        places1 <- curl::curl_fetch_memory(base_url)
+          #httr2::request(base_url) |>
+          #httr2::req_perform()
 
-        places_out_add <- parse_request(places1)
+        places_out_add <- parse_request(places1$content)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -339,10 +347,12 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       for(i in measure){
 
 
-        places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
-          httr2::req_perform()
+        places1 <- #
+          curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i))
+          #httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
+          #httr2::req_perform()
 
-        places_out_add <- parse_request(places1)
+        places_out_add <- parse_request(places1$content)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -368,10 +378,12 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       for(i in state){
 
-        places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", i)) |>
-          httr2::req_perform()
+        #places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", i)) |>
+        #  httr2::req_perform()
 
-        places_out_add <- parse_request(places1)
+        places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", i))
+
+        places_out_add <- parse_request(places1$content)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -401,10 +413,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
           for(b in seq(state)){
 
             places1 <- p1[b] |>
-              httr2::request() |>
-              httr2::req_perform()
+              curl::curl_fetch_memory()
+              #httr2::request() |>
+              #httr2::req_perform()
 
-            places_out_add <- parse_request(places1)
+            places_out_add <- parse_request(places1$content)
 
             places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -421,10 +434,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
           for(b in seq(measure)){
 
             places1 <- p1[b] |>
-              httr2::request() |>
-              httr2::req_perform()
+              curl::curl_fetch_memory()
+             # httr2::request() |>
+             # httr2::req_perform()
 
-            places_out_add <- parse_request(places1)
+            places_out_add <- parse_request(places1$content)
 
             places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -449,10 +463,12 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
         base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
 
-        places1 <- httr2::request(base_url) |>
-          httr2::req_perform()
+        #places1 <- httr2::request(base_url) |>
+        #  httr2::req_perform()
 
-        places_out_add <- parse_request(places1)
+        places1 <- curl::curl_fetch_memory(base_url)
+
+        places_out_add <- parse_request(places1$content)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -471,10 +487,12 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       for(i in measure){
 
 
-        places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
-          httr2::req_perform()
+        # places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
+        #   httr2::req_perform()
 
-        places_out_add <- parse_request(places1)
+        places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i))
+
+        places_out_add <- parse_request(places1$content)
 
         places_out <- rbind(places_out, places_out_add, row.names = NULL)
 
@@ -782,12 +800,20 @@ parse_request <- function(x){
   #   RcppSimdJson::fparse()
 
   x |>
-  httr2::resp_body_string() |>
-  yyjsonr::read_json_str()  |>
-  tidyr::unnest_wider(col = c(geolocation)) |>
-  tidyr::unnest_wider(col = coordinates, names_sep = "_") |>
-  dplyr::rename(lon = coordinates_1,
-                  lat = coordinates_2)
+  #curl::curl_fetch_memory() |>
+  # httr2::resp_body_string() |>
+  # httr2::resp_body_raw() |>
+  rawToChar() |>
+  yyjsonr::read_json_str()  #|>
+  #tidyr::unnest_wider(col = c(geolocation)) |>
+  #tidyr::unnest_wider(col = coordinates, names_sep = "_") |>
+  #dplyr::rename(lon = coordinates_1,
+ #                 lat = coordinates_2)
+
+
+  # wide_df <- do.call(rbind, lapply(list_column, as.data.frame))
+
+  # result <- cbind(df["id"], wide_df)
 
 
 }
