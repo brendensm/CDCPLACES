@@ -1,10 +1,9 @@
 ## This is an update to CDCPLACES
 
-## CDCPLACES 1.1.6
+# CDCPLACES 1.1.7
 
-* Added functionality to query ZCTA-level data. This is available by setting the 'geography' argument to 'zcta'.
-* Added a mechanism to check for overlapping county names. This is useful for querying all levels of data.
-* Changed the dependency used to parse JSON data, improving the performance of querying data.
+* Removed other unnecessary dependencies to improve performance
+* Fixes a bug from 1.1.6 related to overlapping counties when querying census tracts/counties
 
 ### R CMD check results
 

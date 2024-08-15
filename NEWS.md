@@ -1,3 +1,8 @@
+# CDCPLACES 1.1.7
+
+* Removed other unnecessary dependencies to improve performance
+* Fixes a bug from 1.1.6 related to overlapping counties when querying census tracts/counties
+
 # CDCPLACES 1.1.6
 
 * Added functionality to query ZCTA-level data. This is available by setting the 'geography' argument to 'zcta'.
