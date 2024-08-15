@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.1.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2024-07-28T13:19Z
+last_built: 2024-08-15T20:21Z
 urls:
   reference: https://brendensm.github.io/CDCPLACES/reference
   article: https://brendensm.github.io/CDCPLACES/articles
