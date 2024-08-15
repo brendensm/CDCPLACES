@@ -11,7 +11,6 @@ a dataframe with the current PLACES data dictionary.
 }
 \description{
 This function provides the user with a data frame that shows all of the available measures in the PLACES data set and for which release years the measures are included.
-#'
 }
 \examples{
 # First save the data
