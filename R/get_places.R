@@ -98,8 +98,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
     return(invisible(NULL))
   }
 
-  # add tests for measures and api?
-
   # Data pull
   # if county is null
 
@@ -222,8 +220,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       for(i in measure){
 
         places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&measureid=", i))
-          #httr2::request(paste0(base, "?$limit=5000000", "&measureid=", i)) |>
-          #httr2::req_perform()
 
         places_out_add <- parse_request(places1$content)
 
@@ -251,8 +247,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
             places1 <- p1[b] |>
               curl::curl_fetch_memory()
-              #httr2::request() |>
-              #httr2::req_perform()
 
             places_out_add <- parse_request(places1$content)
 
@@ -272,8 +266,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
             places1 <- p1[b] |>
               curl::curl_fetch_memory()
-              #httr2::request() |>
-              #httr2::req_perform()
 
             places_out_add <- parse_request(places1$content)
 
@@ -301,8 +293,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
 
         places1 <- curl::curl_fetch_memory(base_url)
-          #httr2::request(base_url) |>
-          #httr2::req_perform()
 
         places_out_add <- parse_request(places1$content)
 
@@ -325,8 +315,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
         places1 <- #
           curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i))
-          #httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
-          #httr2::req_perform()
 
         places_out_add <- parse_request(places1$content)
 
@@ -353,9 +341,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       places_out <- data.frame()
 
       for(i in state){
-
-        #places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", i)) |>
-        #  httr2::req_perform()
 
         places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", i))
 
@@ -390,8 +375,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
             places1 <- p1[b] |>
               curl::curl_fetch_memory()
-              #httr2::request() |>
-              #httr2::req_perform()
 
             places_out_add <- parse_request(places1$content)
 
@@ -411,8 +394,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
             places1 <- p1[b] |>
               curl::curl_fetch_memory()
-             # httr2::request() |>
-             # httr2::req_perform()
 
             places_out_add <- parse_request(places1$content)
 
@@ -439,9 +420,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
         base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
 
-        #places1 <- httr2::request(base_url) |>
-        #  httr2::req_perform()
-
         places1 <- curl::curl_fetch_memory(base_url)
 
         places_out_add <- parse_request(places1$content)
@@ -462,10 +440,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       for(i in measure){
 
-
-        # places1 <- httr2::request(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)) |>
-        #   httr2::req_perform()
-
         places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i))
 
         places_out_add <- parse_request(places1$content)
@@ -482,17 +456,12 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
      if(geography == "county"){
 
-
-      #output the filtered data with a new function
-
-      places_out <- places_out[places_out$locationname %in% county,] #|>
-       # filter(locationname %in% county)
+      places_out <- places_out[places_out$locationname %in% county,]
 
     }else if(geography == "census"){
 
 
-      places_out <- places_out[places_out$countyname %in% county,] #|>
-        #filter(countyname %in% county)
+      places_out <- places_out[places_out$countyname %in% county,]
 
     }
 
@@ -503,12 +472,6 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
 
   }
-
-
-# places_out <- places_out |>
- # dplyr::mutate(data_value = as.numeric(data_value),
-  #              low_confidence_limit = as.numeric(low_confidence_limit),
-   #             high_confidence_limit = as.numeric(high_confidence_limit))
 
   places_out[,c("data_value", "low_confidence_limit", "high_confidence_limit")] <-
     lapply(places_out[,c("data_value", "low_confidence_limit", "high_confidence_limit")], as.numeric)
@@ -529,13 +492,6 @@ if(isTRUE(geometry)){
 
       fips <- fips[,c("locationname_p", "locationid")]
 
-      #  dplyr::mutate(locationid = paste0(state_code, county_code),
-       #        locationname_p = paste0(county, ", ", state)) |>
-      #  dplyr::select(locationname_p, locationid)
-
-     # places_out <- places_out |>
-       # dplyr::mutate(locationname_p = paste0(locationname, " County, ", stateabbr))
-
       places_out$locationname_p <- paste0(places_out$locationname, " County, ", places_out$stateabbr)
 
       places_out <- merge(places_out, fips, by = "locationname_p")
@@ -551,12 +507,10 @@ if(isTRUE(geometry)){
     }else{
 
       geo <- tigris::counties(state = state, year = 2020, cb = TRUE) #|>
-       # dplyr::select(GEOID, geometry)
 
       geo <- geo[,c("GEOID", "geometry")]
 
       places_out <- merge(places_out, geo, by.x = "locationid", by.y = "GEOID") |>
-        #dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID")) |>
         sf::st_as_sf()
 
     }
@@ -574,7 +528,6 @@ if(isTRUE(geometry)){
       for (i in state){
 
         geo_add <- tigris::tracts(state = i, year = 2010) #|>
-          #dplyr::select(GEOID10, geometry)
 
         geo_add <- geo_add[,c("GEOID10", "geometry")]
 
@@ -583,18 +536,15 @@ if(isTRUE(geometry)){
       }
 
       places_out <- merge(places_out, geo, by.x = "locationid", by.y = "GEOID10") |>
-        # dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID10")) |>
         sf::st_as_sf()
 
     }else{
 
       geo <- tigris::tracts(state = state, year = 2010) #|>
-        #dplyr::select(GEOID10, geometry)
 
       geo <- geo[,c("GEOID10", "geometry")]
 
       places_out <- merge(places_out, geo, by.x = "locationid", by.y = "GEOID10") |>
-        # dplyr::left_join(places_out, geo, by = c("locationid" = "GEOID10")) |>
         sf::st_as_sf()
 
 
@@ -641,9 +591,6 @@ check_measures <- function(x, ryear){
 #'@param x The state to be compared to the US state list
 #'@noRd
 check_states <- function(x){
-  # us_states <- c("CA", "AK", "AL", "AZ", "AR", "GA", "DC", "CO", "DE", "CT", "IN", "IL", "ID", "HI", "KS", "IA", "KY", "MD", "LA", "MA", "ME", "MI", "MS",
-  #                "MN", "MO", "MT", "NE", "NV", "NJ", "NM", "NC", "NY", "NH", "OH", "OK", "ND", "OR", "SD", "SC", "PA", "RI", "TN", "TX", "VA", "UT", "VT",
-  #                "WA", "WI", "WV", "WY")
 
   us_states <- zctaCrosswalk::state_names$usps[1:51]
 
@@ -797,20 +744,9 @@ measure_text <- function(measure){
 #'@noRd
 parse_request <- function(x){
 
-  # out <- x |>
-  #   httr2::resp_body_string() |>
-  #   RcppSimdJson::fparse()
-
   parsed <- x |>
-  #curl::curl_fetch_memory() |>
-  # httr2::resp_body_string() |>
-  # httr2::resp_body_raw() |>
   rawToChar() |>
-  yyjsonr::read_json_str()  #|>
-  #tidyr::unnest_wider(col = c(geolocation)) |>
-  #tidyr::unnest_wider(col = coordinates, names_sep = "_") |>
-  #dplyr::rename(lon = coordinates_1,
- #                 lat = coordinates_2)
+  yyjsonr::read_json_str()
 
   if("stateabbr" %in% names(parsed)){
     parsed <- parsed[parsed$stateabbr != "US",]
@@ -823,10 +759,6 @@ parse_request <- function(x){
   parsed_and_unnested <- cbind(parsed, unnest)
 
   parsed_and_unnested[,!(names(parsed_and_unnested) %in% "geolocation")]
-
-  # wide_df <- do.call(rbind, lapply(list_column, as.data.frame))
-
-  # result <- cbind(df["id"], wide_df)
 
 
 }
@@ -845,10 +777,6 @@ check_multiples <- function(state, county){
   trial <- crosswalk[crosswalk$state_usps %in% state  &
                        crosswalk$county_name %in% paste(tolower(county), "county"),]
 
-  # initial_sum <- trial |>
-  #   dplyr::count(county_name, state_usps)
-  # final_sum <- initial_sum |>
-  #   dplyr::count(county_name)
 
   initial_sum <- aggregate(. ~ county_name + state_usps + county_fips, data = trial, FUN = length)
   names(initial_sum)[4] <- "n"
@@ -871,7 +799,6 @@ check_multiples <- function(state, county){
 
         trial$zcta
 
-        # return() the full zlist
 
       }else{
 
@@ -892,11 +819,9 @@ check_multiples <- function(state, county){
 
           return(
             fil$zcta
-            #filter(trial, !(county_name %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, -3]$county_name) & state_usps %in% sep_response))$zcta
           )
 
         }else{
-          #filter(trial, !(county_name %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, -3]$county_name) & state_usps %in% response2))$zcta
 
           fil <- trial[
             !(
@@ -932,11 +857,6 @@ check_multiples_cc <- function(state, county, places, geography){
   trial <- crosswalk[crosswalk$state_usps %in% state  &
                        crosswalk$county_name %in% paste(tolower(county), "county"),]
 
-  # initial_sum <- trial |>
-  #   dplyr::count(county_name, state_usps, county_fips)
-  # final_sum <- initial_sum |>
-  #   dplyr::count(county_name)
-
   initial_sum <- aggregate(. ~ county_name + state_usps + county_fips, data = trial, FUN = length)
   names(initial_sum)[4] <- "n"
   initial_sum <- initial_sum[,1:4]
@@ -970,14 +890,12 @@ check_multiples_cc <- function(state, county, places, geography){
 
 
             if(geography == "county"){
-              #filter(places, !(stateabbr %in% sep_response & locationid %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, ])$county_fips))
               places[
                 !(places$stateabbr %in% sep_response &
                     places$locationid %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
               ]
 
             }else if (geography == "census"){
-             # filter(places, !(stateabbr %in% sep_response & countyfips %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, ])$county_fips))
               places[
                 !(places$stateabbr %in% sep_response &
                     places$countyfips %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
@@ -988,8 +906,6 @@ check_multiples_cc <- function(state, county, places, geography){
 
 
           if(geography == "county"){
-            #filter(places, !(stateabbr %in% response2 &
-            #x                   locationid %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, ])$county_fips))
 
             places[
               !(places$stateabbr %in% response2 &
@@ -998,7 +914,6 @@ check_multiples_cc <- function(state, county, places, geography){
 
           }else if (geography == "census"){
 
-            # filter(places, !(stateabbr %in% response2 & countyfips %in% unique(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, ])$county_fips))
 
             places_filtered <- places[
               !(places$stateabbr %in% response2 &
