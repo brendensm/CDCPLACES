@@ -744,22 +744,9 @@ measure_text <- function(measure){
 #'@noRd
 parse_request <- function(x){
 
-  parsed <- x |>
+  x |>
   rawToChar() |>
   yyjsonr::read_json_str()
-
-  if("stateabbr" %in% names(parsed)){
-    parsed <- parsed[parsed$stateabbr != "US",]
-  }
-
-  unnest <- do.call(rbind, lapply(parsed$geolocation, function(x){
-    data.frame(lon = x[[2]][1], lat = x[[2]][2])
-  }))
-
-  parsed_and_unnested <- cbind(parsed, unnest)
-
-  parsed_and_unnested[,!(names(parsed_and_unnested) %in% "geolocation")]
-
 
 }
 
