@@ -14,7 +14,6 @@
 #'get_places(geography = "county", state = c("MI", "OH"),
 #'measure = c("SLEEP", "ACCESS2"), release = "2023")
 #'
-#'@importFrom httr http_error timeout GET message_for_status
 #'@importFrom curl has_internet curl_fetch_memory
 #'@importFrom tigris counties tracts
 #'@importFrom sf st_as_sf
@@ -454,6 +453,8 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
   if(!is.null(county)){
 
+    county <- firstup(county)
+
      if(geography == "county"){
 
       places_out <- places_out[places_out$locationname %in% county,]
@@ -605,9 +606,11 @@ check_states <- function(x){
 #'@param x The counties to be compared to the US counties list
 #'@noRd
 check_counties <- function(x){
-  us_counties <- unique(usa::counties$name)
+  #us_counties <- unique(usa::counties$name)
 
-  if(!(x %in% us_counties)){
+  us_counties <- unique(zctaCrosswalk::zcta_crosswalk$county_name)
+
+  if(!(paste(tolower(x), "county") %in% us_counties)){
     stop("\nPlease enter a valid US County name.")
   }
 
@@ -628,7 +631,8 @@ check_api <- function(x){
 
   try_GET <- function(x, ...) {
     tryCatch(
-      httr::GET(url = x, httr::timeout(10), ...),
+      #httr::GET(url = x, httr::timeout(10), ...),
+      curl::curl_fetch_memory(url = x),
       error = function(e) conditionMessage(e),
       warning = function(w) conditionMessage(w)
     )
@@ -636,12 +640,20 @@ check_api <- function(x){
 
   resp <- try_GET(x)
 
-  if(httr::http_error(resp)){
-    httr::message_for_status(resp)
-    message("\nFor full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
+  if(resp$status_code != 200){
+    #httr::message_for_status(resp)
+    message("Status code:", resp$status_code)
+    message("For full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
     stop_quietly()
     #return(invisible(NULL))
   }
+
+  # if(httr::http_error(resp)){
+  #   httr::message_for_status(resp)
+  #   message("\nFor full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
+  #   stop_quietly()
+  #   #return(invisible(NULL))
+  # }
 }
 
 
@@ -652,7 +664,8 @@ test_check_api <- function(x){
 
   try_GET <- function(x, ...) {
     tryCatch(
-      httr::GET(url = x, httr::timeout(10), ...),
+     # httr::GET(url = x, httr::timeout(10), ...),
+      curl::curl_fetch_memory(url = x),
       error = function(e) conditionMessage(e),
       warning = function(w) conditionMessage(w)
     )
@@ -660,8 +673,9 @@ test_check_api <- function(x){
 
   resp <- try_GET(x)
 
-  if(httr::http_error(resp)){
-    httr::message_for_status(resp)
+  if(resp$status_code != 200){
+    #httr::message_for_status(resp)
+    message("Status code:", resp$status_code)
     return(invisible(1))
   }else{
     return(invisible(0))
@@ -923,3 +937,10 @@ check_multiples_cc <- function(state, county, places, geography){
 
 }
 
+#'Upper case the first letter of a string
+#'@param x string to capitalize
+#'@noRd
+firstup <- function(x) {
+  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+  x
+}
