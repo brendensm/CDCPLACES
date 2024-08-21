@@ -31,15 +31,15 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
   if(release == "2023"){
     if(geography == "county"){
 
-      base <-  "https://data.cdc.gov/resource/swc5-untb.json"
+      base <-  "https://data.cdc.gov/resource/swc5-untb.json?$query=SELECT%20*%20"
 
     } else if(geography == "census"){
 
-      base <- "https://data.cdc.gov/resource/cwsq-ngmh.json"
+      base <- "https://data.cdc.gov/resource/cwsq-ngmh.json?$query=SELECT%20*%20"
 
     }else if(geography == "zcta"){
 
-      base <- "https://data.cdc.gov/resource/qnzd-25i4.json?$query=SELECT%20year%2C%20locationname%2C%20datasource%2C%20category%2C%20measure%2C%20data_value_unit%2C%20data_value_type%2C%20data_value%2C%20data_value_footnote_symbol%2C%20data_value_footnote%2C%20low_confidence_limit%2C%20high_confidence_limit%2C%20totalpopulation%2C%20geolocation%2C%20locationid%2C%20categoryid%2C%20measureid%2C%20datavaluetypeid%2C%20short_question_text%20"
+      base <- "https://data.cdc.gov/resource/qnzd-25i4.json?$query=SELECT%20*%20"
 
 
 
@@ -50,11 +50,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
   }else if(release == "2022"){
     if(geography == "county"){
 
-      base <- "https://data.cdc.gov/resource/duw2-7jbt.json"
+      base <- "https://data.cdc.gov/resource/duw2-7jbt.json?$query=SELECT%20*%20"
 
     } else if(geography == "census"){
 
-      base <- "https://data.cdc.gov/resource/nw2y-v4gm.json"
+      base <- "https://data.cdc.gov/resource/nw2y-v4gm.json?$query=SELECT%20*%20"
 
     }else{
       stop("Geographic level not supported. Please enter 'census' or 'county'.")
@@ -63,11 +63,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
   }else if(release == "2021"){
     if(geography == "county"){
 
-      base <- "https://data.cdc.gov/resource/pqpp-u99h.json"
+      base <- "https://data.cdc.gov/resource/pqpp-u99h.json?$query=SELECT%20*%20"
 
     } else if(geography == "census"){
 
-      base <- "https://data.cdc.gov/resource/373s-ayzu.json"
+      base <- "https://data.cdc.gov/resource/373s-ayzu.json?$query=SELECT%20*%20"
 
     }else{
       stop("Geographic level not supported. Please enter 'census' or 'county'.")
@@ -76,11 +76,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
   }else if(release == "2020"){
     if(geography == "county"){
 
-      base <- "https://data.cdc.gov/resource/dv4u-3x3q.json"
+      base <- "https://data.cdc.gov/resource/dv4u-3x3q.json?$query=SELECT%20*%20"
 
     } else if(geography == "census"){
 
-      base <- "https://data.cdc.gov/resource/4ai3-zynv.json"
+      base <- "https://data.cdc.gov/resource/4ai3-zynv.json?$query=SELECT%20*%20"
 
     }else{
       stop("Geographic level not supported. Please enter 'census' or 'county'.")
@@ -144,7 +144,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       places_out <-  parse_request(places1$content)
 
     }else{
-
+      print(paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%2050000"))
       places1 <- paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%2050000") |>
         curl::curl_fetch_memory()
 
@@ -189,95 +189,64 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       places_out <-  parse_request(places1$content)
 
-    }else if(is.null(measure)){
+    }else if(is.null(measure)){ # state, no measures or county
 
       lapply(state, check_states)
 
       check_api(base)
 
-      places_out <- data.frame()
+      places1 <- paste0(
+        base,
+        format_query(state, "state", "WHERE", geography),
+        "%20LIMIT%205000000"
+      ) |>
+        curl::curl_fetch_memory()
 
-      for(i in state){
+      places_out <- places1$content |>
+        parse_request()
 
-        places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", i))
+      # places_out <- data.frame()
+      #
+      # for(i in state){
+      #
+      #   places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", i))
+      #
+      #   places_out_add <- parse_request(places1$content)
+      #
+      #   places_out <- rbind(places_out, places_out_add, row.names = NULL)
+      #
+      #
+      # }
 
-        places_out_add <- parse_request(places1$content)
-
-        places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-
-      }
-
-    }else if(is.null(state)){
-
-      lapply(measure, check_measures, ryear=release)
-
-      check_api(base)
-
-      places_out <- data.frame()
-
-      for(i in measure){
-
-        places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&measureid=", i))
-
-        places_out_add <- parse_request(places1$content)
-
-        places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-      }
-
-    }else if (length(measure) > 1 & length(state) > 1){ # multiple states, multiple measures
-
-      lapply(state, check_states)
+    }else if(is.null(state)){ # measure - no state, no county
 
       lapply(measure, check_measures, ryear=release)
 
       check_api(base)
 
-      places_out <- data.frame()
+      places1 <- paste0(
+        base,
+        format_query(measure, "measure", "WHERE", geography),
+        "%20LIMIT%205000000"
+      ) |>
+        curl::curl_fetch_memory()
 
-      if(length(measure) > length(state)){
+      places_out <- places1$content |>
+        parse_request()
 
-        for(i in measure){
+      #places_out <- data.frame()
 
-          p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)
+      # for(i in measure){
+      #
+      #   places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&measureid=", i))
+      #
+      #   places_out_add <- parse_request(places1$content)
+      #
+      #   places_out <- rbind(places_out, places_out_add, row.names = NULL)
+      #
+      # }
 
-          for(b in seq(state)){
-
-            places1 <- p1[b] |>
-              curl::curl_fetch_memory()
-
-            places_out_add <- parse_request(places1$content)
-
-            places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-          }
-
-        }
-
-      }else{
-
-        for(i in state){
-
-          p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", i, "&measureid=", measure)
-
-          for(b in seq(measure)){
-
-            places1 <- p1[b] |>
-              curl::curl_fetch_memory()
-
-            places_out_add <- parse_request(places1$content)
-
-            places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-          }
-
-        }
-
-      }
-
-
-    }else if(length(state) >= 1 & length(measure) < 2){
+    }else{ #if (length(measure) > 1 & length(state) > 1){ # multiple states, multiple measures, # no county
 
       lapply(state, check_states)
 
@@ -285,76 +254,169 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       check_api(base)
 
-      places_out <- data.frame()
+      places1 <- paste0(
+        base,
+        format_query(measure, "measure", "WHERE", geography),
+        format_query(state, "state", "AND", geography),
+        "%20LIMIT%205000000"
+      ) |>
+        curl::curl_fetch_memory()
 
-      for(i in state){
-
-        base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
-
-        places1 <- curl::curl_fetch_memory(base_url)
-
-        places_out_add <- parse_request(places1$content)
-
-        places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-      }
-
-    }else if (length(measure >= 1 & length(state) < 2)){
-
-      lapply(state, check_states)
-
-      lapply(measure, check_measures, ryear=release)
-
-      check_api(base)
-
-      places_out <- data.frame()
-
-      for(i in measure){
-
-
-        places1 <- #
-          curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i))
-
-        places_out_add <- parse_request(places1$content)
-
-        places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-      }
-
+      places_out <- places1$content |>
+        parse_request()
     }
+      ######
+
+     # places_out <- data.frame()
+
+    #   if(length(measure) > length(state)){
+    #
+    #     for(i in measure){
+    #
+    #       p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)
+    #
+    #       for(b in seq(state)){
+    #
+    #         places1 <- p1[b] |>
+    #           curl::curl_fetch_memory()
+    #
+    #         places_out_add <- parse_request(places1$content)
+    #
+    #         places_out <- rbind(places_out, places_out_add, row.names = NULL)
+    #
+    #       }
+    #
+    #     }
+    #
+    #   }else{
+    #
+    #     for(i in state){
+    #
+    #       p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", i, "&measureid=", measure)
+    #
+    #       for(b in seq(measure)){
+    #
+    #         places1 <- p1[b] |>
+    #           curl::curl_fetch_memory()
+    #
+    #         places_out_add <- parse_request(places1$content)
+    #
+    #         places_out <- rbind(places_out, places_out_add, row.names = NULL)
+    #
+    #       }
+    #
+    #     }
+    #
+    #   }
+    #
+    #
+    # }else if(length(state) >= 1 & length(measure) < 2){
+    #
+    #   lapply(state, check_states)
+    #
+    #   lapply(measure, check_measures, ryear=release)
+    #
+    #   check_api(base)
+    #
+    #   places_out <- data.frame()
+    #
+    #   for(i in state){
+    #
+    #     base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
+    #
+    #     places1 <- curl::curl_fetch_memory(base_url)
+    #
+    #     places_out_add <- parse_request(places1$content)
+    #
+    #     places_out <- rbind(places_out, places_out_add, row.names = NULL)
+    #
+    #   }
+    #
+    # }else if (length(measure >= 1 & length(state) < 2)){
+    #
+    #   lapply(state, check_states)
+    #
+    #   lapply(measure, check_measures, ryear=release)
+    #
+    #   check_api(base)
+    #
+    #   places_out <- data.frame()
+    #
+    #   for(i in measure){
+    #
+    #
+    #     places1 <- #
+    #       curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i))
+    #
+    #     places_out_add <- parse_request(places1$content)
+    #
+    #     places_out <- rbind(places_out, places_out_add, row.names = NULL)
+    #
+    #   }
+    #
+    # }
 
   }else{ # if county is provided
 
     lapply(county, check_counties)
 
-    if(is.null(state) & is.null(measure)){
+    if(is.null(state) & is.null(measure)){ # all measures and states of a specified county
 
       stop("If querying counties, you must supply the argument 'state'.")
 
-    }else if(is.null(measure)){ # all measures
+    }else if(is.null(measure)){ # all measures, specific county and states
 
       lapply(state, check_states)
 
       check_api(base)
 
-      places_out <- data.frame()
+      places1 <- paste0(
+        base,
+        format_query(state, "state", "WHERE", geography),
+        "%20",
+        format_query(toupper(county), "county", "AND", geography),
+        "%20",
+        "%20LIMIT%205000000"
+      ) |>
+        curl::curl_fetch_memory()
 
-      for(i in state){
+      places_out <- places1$content |>
+        parse_request()
 
-        places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", i))
+      # places_out <- data.frame()
+      #
+      # for(i in state){
+      #
+      #   places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", i))
+      #
+      #   places_out_add <- parse_request(places1$content)
+      #
+      #   places_out <- rbind(places_out, places_out_add, row.names = NULL)
+      #
+      #
+      # }
 
-        places_out_add <- parse_request(places1$content)
+    }else if(is.null(state)){ #specific measures and county, no state specified
 
-        places_out <- rbind(places_out, places_out_add, row.names = NULL)
+      lapply(measure, check_measures, ryear=release)
 
+      check_api(base)
 
-      }
+      places1 <- paste0(
+        base,
+        format_query(measure, "measure", "WHERE", geography),
+        "%20",
+        format_query(toupper(county), "county", "AND", geography),
+        "%20LIMIT%205000000"
+      ) |>
+        curl::curl_fetch_memory()
 
-    }else if(is.null(state)){
+      places_out <- places1$content |>
+        parse_request()
 
-      stop("If querying counties, you must supply the argument 'state'.")
+      #stop("If querying counties, you must supply the argument 'state'.")
 
-    }else if (length(measure) > 1 & length(state) > 1){ # multiple states, multiple measures
+    }else{
 
       lapply(state, check_states)
 
@@ -362,120 +424,145 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       check_api(base)
 
-      places_out <- data.frame()
+      places1 <- paste0(
+        base,
+        format_query(state, "state", "WHERE", geography),
+        "%20",
+        format_query(toupper(county), "county", "AND", geography),
+        "%20",
+        format_query(measure, "measure", "AND", geography),
+       "%20LIMIT%205000000"
+      ) |>
+        curl::curl_fetch_memory()
 
-      if(length(measure) > length(state)){
+      places_out <- places1$content |>
+        parse_request()
 
-        for(i in measure){
+    } #if (length(measure) > 1 & length(state) > 1){ # multiple states, multiple measures
 
-          p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)
+      # lapply(state, check_states)
+      #
+      # lapply(measure, check_measures, ryear=release)
+      #
+      # check_api(base)
 
-          for(b in seq(state)){
+    #   places_out <- data.frame()
+    #
+    #   if(length(measure) > length(state)){
+    #
+    #     for(i in measure){
+    #
+    #       p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i)
+    #
+    #       for(b in seq(state)){
+    #
+    #         places1 <- p1[b] |>
+    #           curl::curl_fetch_memory()
+    #
+    #         places_out_add <- parse_request(places1$content)
+    #
+    #         places_out <- rbind(places_out, places_out_add, row.names = NULL)
+    #
+    #       }
+    #
+    #     }
+    #
+    #   }else{
+    #
+    #     for(i in state){
+    #
+    #       p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", i, "&measureid=", measure)
+    #
+    #       for(b in seq(measure)){
+    #
+    #         places1 <- p1[b] |>
+    #           curl::curl_fetch_memory()
+    #
+    #         places_out_add <- parse_request(places1$content)
+    #
+    #         places_out <- rbind(places_out, places_out_add, row.names = NULL)
+    #
+    #       }
+    #
+    #     }
+    #
+    #   }
+    #
+    #
+    # }else if(length(state) >= 1 & length(measure) < 2){
+    #
+    #   lapply(state, check_states)
+    #
+    #   lapply(measure, check_measures, ryear=release)
+    #
+    #   check_api(base)
+    #
+    #   places_out <- data.frame()
+    #
+    #   for(i in state){
+    #
+    #     base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
+    #
+    #     places1 <- curl::curl_fetch_memory(base_url)
+    #
+    #     places_out_add <- parse_request(places1$content)
+    #
+    #     places_out <- rbind(places_out, places_out_add, row.names = NULL)
+    #
+    #   }
+    #
+    # }else if (length(measure >= 1 & length(state) < 2)){
+    #
+    #   lapply(state, check_states)
+    #
+    #   lapply(measure, check_measures, ryear=release)
+    #
+    #   check_api(base)
+    #
+    #   places_out <- data.frame()
+    #
+    #   for(i in measure){
+    #
+    #     places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i))
+    #
+    #     places_out_add <- parse_request(places1$content)
+    #
+    #     places_out <- rbind(places_out, places_out_add, row.names = NULL)
+    #
+    #   }
+    #
+    # }
 
-            places1 <- p1[b] |>
-              curl::curl_fetch_memory()
-
-            places_out_add <- parse_request(places1$content)
-
-            places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-          }
-
-        }
-
-      }else{
-
-        for(i in state){
-
-          p1 <- paste0(base, "?$limit=5000000", "&stateabbr=", i, "&measureid=", measure)
-
-          for(b in seq(measure)){
-
-            places1 <- p1[b] |>
-              curl::curl_fetch_memory()
-
-            places_out_add <- parse_request(places1$content)
-
-            places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-          }
-
-        }
-
-      }
-
-
-    }else if(length(state) >= 1 & length(measure) < 2){
-
-      lapply(state, check_states)
-
-      lapply(measure, check_measures, ryear=release)
-
-      check_api(base)
-
-      places_out <- data.frame()
-
-      for(i in state){
-
-        base_url <- paste0(base, "?$limit=5000000", "&measureid=", measure, "&stateabbr=", i)
-
-        places1 <- curl::curl_fetch_memory(base_url)
-
-        places_out_add <- parse_request(places1$content)
-
-        places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-      }
-
-    }else if (length(measure >= 1 & length(state) < 2)){
-
-      lapply(state, check_states)
-
-      lapply(measure, check_measures, ryear=release)
-
-      check_api(base)
-
-      places_out <- data.frame()
-
-      for(i in measure){
-
-        places1 <- curl::curl_fetch_memory(paste0(base, "?$limit=5000000", "&stateabbr=", state, "&measureid=", i))
-
-        places_out_add <- parse_request(places1$content)
-
-        places_out <- rbind(places_out, places_out_add, row.names = NULL)
-
-      }
-
+    if(length(state) > 1){
+      places_out <- check_multiples_cc(state, county, places_out, geography)
     }
-  }
-
-
-  if(!is.null(county)){
-
-    county <- firstup(county)
-
-     if(geography == "county"){
-
-      places_out <- places_out[places_out$locationname %in% county,]
-
-    }else if(geography == "census"){
-
-
-      places_out <- places_out[places_out$countyname %in% county,]
-
-    }
-
-
-  if(length(state) > 1){
-     places_out <- check_multiples_cc(state, county, places_out, geography)
-  }
-
 
   }
 
-  places_out[,c("data_value", "low_confidence_limit", "high_confidence_limit")] <-
-    lapply(places_out[,c("data_value", "low_confidence_limit", "high_confidence_limit")], as.numeric)
+
+  # if(!is.null(county)){
+  #
+  #   county <- firstup(county)
+  #
+  #    if(geography == "county"){
+  #
+  #     places_out <- places_out[places_out$locationname %in% county,]
+  #
+  #   }else if(geography == "census"){
+  #
+  #
+  #     places_out <- places_out[places_out$countyname %in% county,]
+  #
+  #   }
+
+
+
+
+
+  #}
+
+ places_out[,c("data_value", "low_confidence_limit", "high_confidence_limit")] <-
+  lapply(places_out[,c("data_value", "low_confidence_limit", "high_confidence_limit")], as.numeric)
 
 if(isTRUE(geometry)){
 
@@ -549,13 +636,13 @@ if(isTRUE(geometry)){
         sf::st_as_sf()
 
 
+      }
+
+
     }
 
 
   }
-
-
-}
 
   return(places_out)
 
@@ -744,6 +831,78 @@ measure_text <- function(measure){
     one <- paste0("%20AND%20((%60measureid%60%20%3D%20'", first_measure, "')%20")
     two <- paste0("OR%20(upper(%60measureid%60)%20LIKE%20'%25", middle, "%25')", collapse = "")
     three <- paste0("OR%20(upper(%60measureid%60)%20LIKE%20'%25", last_measure, "%25'))")
+
+    return(paste0(one, two, three, collapse = ""))
+
+  }
+
+}
+
+
+format_query <-  function(x, var, operator, type){
+
+  if(var == "measure"){
+    var <- "measureid"
+  }else if(var == "state"){
+    var <-  "stateabbr"
+  }else if(var == "county"){
+    if(type == "county"){
+      var <- "locationname"
+    }else if(type == "census"){
+      var <- "countyname"
+    }
+  }
+
+  if(length(x) == 1){
+    paste0( operator, "%20(upper(%60", var, "%60)%20LIKE%20'%25", x, "%25')", collapse = "")
+
+  }else if(length(x) < 3){
+    first <- x[1]
+    last <- x[length(x)]
+
+    paste0( operator, "%20((upper(%60", var, "%60)%20LIKE%20'%25", first, "%25')",
+           "%20OR%20(upper(%60", var, "%60)%20LIKE%20'%25", last, "%25'))")
+
+  }else if(length(x) >= 3){
+
+    first <- x[1]
+    last <- x[length(x)]
+
+    middle <- x[2:(length(x) - 1)]
+
+    one <- paste0( operator, "%20((upper(%60", var, "%60)%20LIKE%20'%25", first, "%25')%20")
+    two <- paste0("OR%20(upper(%60", var, "%60)%20LIKE%20'%25", middle, "%25')", collapse = "")
+    three <- paste0("%20OR%20(upper(%60", var, "%60)%20LIKE%20'%25", last, "%25'))")
+
+    return(paste0(one, two, three, collapse = ""))
+
+  }
+
+}
+
+
+formatted_state_names <- function(state){
+
+  if(length(state) == 1){
+    paste0("%20WHERE%20((%60stateabbr%60%20%3D%20'", state, "'))", collapse = "")
+
+  }else if(length(state) < 3){
+    first_state <- state[1]
+    last_state <- state[length(state)]
+
+    paste0("%20WHERE%20((%60stateabbr%60%20%3D%20'", first_state, "')%20",
+           "OR%20(upper(%60stateabbr%60)%20LIKE%20'%25", last_state, "%25'))")
+
+  }else if(length(state) >= 3){
+
+    first_state <- state[1]
+    last_state <- state[length(state)]
+
+    middle <- state[2:(length(state) - 1)]
+
+    one <- paste0("%20WHERE%20((%60stateabbr%60%20%3D%20'", first_state, "')%20")
+    two <- paste0("OR%20(upper(%60stateabbr%60)%20LIKE%20'%25", middle, "%25')", collapse = "")
+    three <- paste0("OR%20(upper(%60stateabbr%60)%20LIKE%20'%25", last_state, "%25'))")
 
     return(paste0(one, two, three, collapse = ""))
 
