@@ -44,8 +44,10 @@
 <span>  state <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  measure <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  county <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  release <span class="op">=</span> <span class="st">"2023"</span>,</span>
-<span>  geometry <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  release <span class="op">=</span> <span class="st">"2024"</span>,</span>
+<span>  geometry <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cat <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  age_adjust <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -76,10 +78,18 @@
 <dt id="arg-geometry">geometry<a class="anchor" aria-label="anchor" href="#arg-geometry"></a></dt>
 <dd><p>if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.</p></dd>
 
+
+<dt id="arg-cat">cat<a class="anchor" aria-label="anchor" href="#arg-cat"></a></dt>
+<dd><p>Specify the category of measures to return. Overrides the argument 'measure'. Category ID must be used here. Options include 'DISABILT', 'HLTHOUT', 'HLTHSTAT', 'PREVENT', 'RISKBEH', and 'SOCLNEED' (for release 2024). To see all the available categories and their corresponding variables, run get_dictionary.</p></dd>
+
+
+<dt id="arg-age-adjust">age_adjust<a class="anchor" aria-label="anchor" href="#arg-age-adjust"></a></dt>
+<dd><p>For queries on the county level only. If TRUE, returns only the age-adjusted values.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble that contains observations for each measure (age-adjusted and unadjusted prevalence for counties) and geographic level.</p>
+    <p>A data frame that contains observations for each measure and geographic level.</p>
     </div>
 
     <div class="section level2">
