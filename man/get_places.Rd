@@ -9,8 +9,10 @@ get_places(
   state = NULL,
   measure = NULL,
   county = NULL,
-  release = "2023",
-  geometry = FALSE
+  release = "2024",
+  geometry = FALSE,
+  cat = NULL,
+  age_adjust = NULL
 )
 }
 \arguments{
@@ -25,9 +27,13 @@ get_places(
 \item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2023.}
 
 \item{geometry}{if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.}
+
+\item{cat}{Specify the category of measures to return. Overrides the argument 'measure'. Category ID must be used here. Options include 'DISABILT', 'HLTHOUT', 'HLTHSTAT', 'PREVENT', 'RISKBEH', and 'SOCLNEED' (for release 2024). To see all the available categories and their corresponding variables, run get_dictionary.}
+
+\item{age_adjust}{For queries on the county level only. If TRUE, returns only the age-adjusted values.}
 }
 \value{
-A tibble that contains observations for each measure (age-adjusted and unadjusted prevalence for counties) and geographic level.
+A data frame that contains observations for each measure and geographic level.
 }
 \description{
 Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
