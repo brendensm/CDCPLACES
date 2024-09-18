@@ -1,7 +1,12 @@
+# CDCPLACES 1.1.8
+
+* Add the newest release year (2024), updating the API's base URL.
+* Added two new arguments: `cat` to query a specific category of measures and `age_adjust` to return only the age adjusted rates if set to `TRUE`.
+
 # CDCPLACES 1.1.7
 
-* Removed other unnecessary dependencies to improve performance
-* Fixes a bug from 1.1.6 related to overlapping counties when querying census tracts/counties
+* Removed other unnecessary dependencies to improve performance.
+* Fixes a bug from 1.1.6 related to overlapping counties when querying census tracts/counties.
 
 # CDCPLACES 1.1.6
 
