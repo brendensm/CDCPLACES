@@ -39,7 +39,7 @@ if(isTRUE(curl::has_internet())){
     # county test for each year (multple states, one measure)
     for (i in years){
       test_that(paste0("function accesses county api", i, "(multiple states, one measure)"), {
-        expect_s3_class(get_places(state = c("OH", "WI"), measure = "ACCESS2"), "data.frame")
+        expect_s3_class(get_places(state = c("OH", "WI"), measure = "ACCESS2", release = i), "data.frame")
       })
     }
 

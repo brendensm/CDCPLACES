@@ -108,7 +108,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
     }
 
   }else{
-    stop("Release year is not available. Please enter a year 2020-2023.")
+    stop("Release year is not available. Please enter a year 2020-2024.")
   }
 
   # Check for internet
@@ -123,7 +123,10 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
   if(geography == "zcta"){
 
-    check_api(base)
+    if(is.null(check_api(base))){
+      return(NULL)
+    }
+
     crosswalk <- zctaCrosswalk::zcta_crosswalk
 
     if(is.null(county)){
@@ -204,7 +207,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       message("Pulling data for all geographies. This may take some time...")
 
-      check_api(base)
+      if(is.null(check_api(base))){       return(NULL)     }
 
       places1 <- curl::curl_fetch_memory(base)
 
@@ -214,7 +217,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       lapply(state, check_states)
 
-      check_api(base)
+      if(is.null(check_api(base))){       return(NULL)     }
 
       places1 <- paste0(
         base,
@@ -230,7 +233,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       lapply(measure, check_measures, ryear=release)
 
-      check_api(base)
+      if(is.null(check_api(base))){       return(NULL)     }
 
       places1 <- paste0(
         base,
@@ -250,7 +253,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       lapply(measure, check_measures, ryear=release)
 
-      check_api(base)
+      if(is.null(check_api(base))){       return(NULL)     }
 
       places1 <- paste0(
         base,
@@ -276,7 +279,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       lapply(state, check_states)
 
-      check_api(base)
+      if(is.null(check_api(base))){       return(NULL)     }
 
       places1 <- paste0(
         base,
@@ -296,7 +299,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       lapply(measure, check_measures, ryear=release)
 
-      check_api(base)
+      if(is.null(check_api(base))){       return(NULL)     }
 
       places1 <- paste0(
         base,
@@ -316,7 +319,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
       lapply(measure, check_measures, ryear=release)
 
-      check_api(base)
+      if(is.null(check_api(base))){       return(NULL)     }
 
       places1 <- paste0(
         base,
@@ -512,8 +515,11 @@ check_api <- function(x){
     #httr::message_for_status(resp)
     message("Status code:", resp$status_code)
     message("For full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
-    stop_quietly()
-    #return(invisible(NULL))
+    return(invisible(NULL))
+    #stop_quietly()
+
+  }else{
+    return(invisible(1))
   }
 
   # if(httr::http_error(resp)){
@@ -522,6 +528,9 @@ check_api <- function(x){
   #   stop_quietly()
   #   #return(invisible(NULL))
   # }
+
+
+
 }
 
 

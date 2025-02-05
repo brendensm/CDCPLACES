@@ -1,9 +1,9 @@
 ## This is an update to CDCPLACES
 
-# CDCPLACES 1.1.8
+# CDCPLACES 1.1.9
 
-* Add the newest release year (2024), updating the API's base URL.
-* Added two new arguments: `cat` to query a specific category of measures and `age_adjust` to return only the age adjusted rates if set to `TRUE`.
+* Edits the logic of check_api to stop the main function and return a null value if the api is unable to be reached.
+* Fixes a typo in test-get_places.R.
 
 ### R CMD check results
 

@@ -23,7 +23,7 @@ get_dictionary <- function(){
 
   base <- "https://data.cdc.gov/resource/m35w-spkz.json"
 
-  check_api(base)
+  if(is.null(check_api(base))){       return(NULL)     }
 
   resp <- curl::curl_fetch_memory(base)
 
