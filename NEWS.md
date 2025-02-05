@@ -1,3 +1,8 @@
+# CDCPLACES 1.1.9
+
+* Edits the logic of check_api to stop the main function and return a null value if the api is unable to be reached.
+* Fixes a typo in test-get_places.R.
+
 # CDCPLACES 1.1.8
 
 * Add the newest release year (2024), updating the API's base URL.
