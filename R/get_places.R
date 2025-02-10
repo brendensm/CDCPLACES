@@ -6,7 +6,7 @@
 #'@param state Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.
 #'@param measure Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.
 #'@param county Specify the county of the desired data using the full name of the county, with a capital letter.
-#'@param release Specify the year of release for the PLACES data set. Currently supports years 2020-2023.
+#'@param release Specify the year of release for the PLACES data set. Currently supports years 2020-2024.
 #'@param geometry if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.
 #'@param cat Specify the category of measures to return. Overrides the argument 'measure'. Category ID must be used here. Options include 'DISABILT', 'HLTHOUT', 'HLTHSTAT', 'PREVENT', 'RISKBEH', and 'SOCLNEED' (for release 2024). To see all the available categories and their corresponding variables, run get_dictionary.
 #'@param age_adjust For queries on the county level only. If TRUE, returns only the age-adjusted values.
