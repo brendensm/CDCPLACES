@@ -24,7 +24,7 @@ get_places(
 
 \item{county}{Specify the county of the desired data using the full name of the county, with a capital letter.}
 
-\item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2023.}
+\item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2024.}
 
 \item{geometry}{if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.}
 
@@ -39,8 +39,9 @@ A data frame that contains observations for each measure and geographic level.
 Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
 }
 \examples{
+\dontrun{
 get_places(geography = "county", state = "MI", measure = "SLEEP", release = "2023")
 get_places(geography = "county", state = c("MI", "OH"),
 measure = c("SLEEP", "ACCESS2"), release = "2023")
-
+}
 }

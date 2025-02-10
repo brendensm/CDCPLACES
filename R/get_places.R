@@ -12,10 +12,11 @@
 #'@param age_adjust For queries on the county level only. If TRUE, returns only the age-adjusted values.
 #'
 #'@examples
+#'\dontrun{
 #'get_places(geography = "county", state = "MI", measure = "SLEEP", release = "2023")
 #'get_places(geography = "county", state = c("MI", "OH"),
 #'measure = c("SLEEP", "ACCESS2"), release = "2023")
-#'
+#'}
 #'@importFrom curl has_internet curl_fetch_memory
 #'@importFrom tigris counties tracts
 #'@importFrom sf st_as_sf

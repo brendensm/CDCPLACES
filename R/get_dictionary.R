@@ -7,7 +7,9 @@
 #'
 #'@examples
 #'# First save the data
+#'\dontrun{
 #'dictionary <- get_dictionary()
+#'}
 #'# Then view the data frame
 #'# View(dictionary)
 #'
