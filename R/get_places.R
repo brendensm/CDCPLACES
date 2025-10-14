@@ -163,14 +163,13 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       stop("You must select at least one state to query ZCTA data.")
     }else if(is.null(measure)){
 
-      places1 <- paste0(base, formatted_zctas(zlist), "%20LIMIT%2050000") |>
+      places1 <- paste0(base, formatted_zctas(zlist), "%20LIMIT%205000000") |>
         curl::curl_fetch_memory()
 
       places_out <-  parse_request(places1$content)
 
     }else{
-     # print(paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%2050000"))
-      places1 <- paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%2050000") |>
+      places1 <- paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%205000000") |>
         curl::curl_fetch_memory()
 
       places_out <- parse_request(places1$content)
@@ -567,66 +566,29 @@ test_check_api <- function(x){
 #'pastes together the required url to query the API from a state/county's ZCTAs.
 #'@param my_vector vector of zip codes to add to the query
 #'@noRd
+#'
 formatted_zctas <- function(my_vector) {
-
-  firstprefix <- "WHERE%20((upper(%60locationname%60)%20LIKE%20'%25"
-  firstsuffix <- "%25')%20"
-
-  # Define the prefix and suffix
-  bodyprefix <- "OR%20(upper(%60locationname%60)%20LIKE%20'%25"
-  bodysuffix <- "%25')%20"
-
-  lastsuffix <- "%25'))"
-
-  first_vec <- my_vector[1]
-
-  last_vec <- my_vector[length(my_vector)]
-
-  body <- my_vector[2:(length(my_vector)-1)]
-
-
-  part_one <- paste0(firstprefix, first_vec, firstsuffix, collapse = "")
-
-  part_two <- paste0(bodyprefix, body, bodysuffix, collapse = "")
-
-  part_three <- paste0(bodyprefix, last_vec, lastsuffix, collapse = "")
-
-  # Concatenate the elements of the vector with the prefix and suffix
-  formatted_strings <- paste0(part_one, part_two, part_three, collapse = "")
-
-  return(formatted_strings)
-}
-
-#'pastes together the required measures to query the API for a ZCTA query.
-#'@param my_vector vector of zip codes to add to the query
-#'@noRd
-measure_text <- function(measure){
-
-  if(length(measure) == 1){
-    paste0("%20AND%20((%60measureid%60%20%3D%20'", measure, "'))", collapse = "")
-
-  }else if(length(measure) < 3){
-    first_measure <- measure[1]
-    last_measure <- measure[length(measure)]
-
-    paste0("%20AND%20((%60measureid%60%20%3D%20'", first_measure, "')%20",
-           "OR%20(upper(%60measureid%60)%20LIKE%20'%25", last_measure, "%25'))")
-
-  }else if(length(measure) >= 3){
-
-    first_measure <- measure[1]
-    last_measure <- measure[length(measure)]
-
-    middle <- measure[2:(length(measure) - 1)]
-
-    one <- paste0("%20AND%20((%60measureid%60%20%3D%20'", first_measure, "')%20")
-    two <- paste0("OR%20(upper(%60measureid%60)%20LIKE%20'%25", middle, "%25')", collapse = "")
-    three <- paste0("OR%20(upper(%60measureid%60)%20LIKE%20'%25", last_measure, "%25'))")
-
-    return(paste0(one, two, three, collapse = ""))
-
+  if(length(my_vector) == 1) {
+    return(paste0("WHERE%20locationname%20%3D%20'", my_vector, "'"))
   }
 
+  # Use IN operator instead of multiple LIKE statements
+  zcta_list <- paste(my_vector, collapse = "','")
+  paste0("WHERE%20locationname%20IN%20('", zcta_list, "')")
+}
+
+
+#'pastes together the required measures to query the API for a ZCTA query.
+#'@param measure vector of measures to add to the query
+#'@noRd
+measure_text <- function(measure){
+  if(length(measure) == 1) {
+    paste0("%20AND%20measureid%20%3D%20'", measure, "'", collapse = "")
+  } else {
+    # Use IN operator instead of multiple LIKE statements
+    measure_list <- paste(measure, collapse = "','")
+    paste0("%20AND%20measureid%20IN%20('", measure_list, "')")
+  }
 }
 
 #'pastes together the required variable names to query the API.
@@ -635,45 +597,28 @@ measure_text <- function(measure){
 #'@param operator AND or WHERE
 #'@param type the geography type of the query
 #'@noRd
-format_query <-  function(x, var, operator, type){
+format_query <- function(x, var, operator, type){
 
+  # Map var to actual column name
   if(var == "measure"){
     var <- "measureid"
-  }else if(var == "state"){
-    var <-  "stateabbr"
-  }else if(var == "county"){
+  } else if(var == "state"){
+    var <- "stateabbr"
+  } else if(var == "county"){
     if(type == "county"){
       var <- "locationname"
-    }else if(type == "census"){
+    } else if(type == "census"){
       var <- "countyname"
     }
   }
 
+  # Build query using IN operator for cleaner, shorter URLs
   if(length(x) == 1){
-    paste0( operator, "%20(upper(%60", var, "%60)%20LIKE%20'%25", x, "%25')", collapse = "")
-
-  }else if(length(x) < 3){
-    first <- x[1]
-    last <- x[length(x)]
-
-    paste0( operator, "%20((upper(%60", var, "%60)%20LIKE%20'%25", first, "%25')",
-           "%20OR%20(upper(%60", var, "%60)%20LIKE%20'%25", last, "%25'))")
-
-  }else if(length(x) >= 3){
-
-    first <- x[1]
-    last <- x[length(x)]
-
-    middle <- x[2:(length(x) - 1)]
-
-    one <- paste0( operator, "%20((upper(%60", var, "%60)%20LIKE%20'%25", first, "%25')%20")
-    two <- paste0("OR%20(upper(%60", var, "%60)%20LIKE%20'%25", middle, "%25')", collapse = "")
-    three <- paste0("%20OR%20(upper(%60", var, "%60)%20LIKE%20'%25", last, "%25'))")
-
-    return(paste0(one, two, three, collapse = ""))
-
+    paste0(operator, "%20", var, "%20%3D%20'", x, "'")
+  } else {
+    values <- paste(x, collapse = "','")
+    paste0(operator, "%20", var, "%20IN%20('", values, "')")
   }
-
 }
 
 #'parses the json of a the httr2 request
