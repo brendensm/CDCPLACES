@@ -2,11 +2,11 @@
 #'
 #'Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
 #'
-#'@param geography The level of desired geography. Currently supports 'county', 'census', and 'zcta'.
+#'@param geography The level of desired geography. Currently supports 'county', 'tract', and 'zcta'.
 #'@param state Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.
 #'@param measure Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.
 #'@param county Specify the county of the desired data using the full name of the county, with a capital letter.
-#'@param release Specify the year of release for the PLACES data set. Currently supports years 2020-2024.
+#'@param release Specify the year of release for the PLACES data set. Currently supports years 2020-2025.
 #'@param geometry if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.
 #'@param cat Specify the category of measures to return. Overrides the argument 'measure'. Category ID must be used here. Options include 'DISABILT', 'HLTHOUT', 'HLTHSTAT', 'PREVENT', 'RISKBEH', and 'SOCLNEED' (for release 2024). To see all the available categories and their corresponding variables, run get_dictionary.
 #'@param age_adjust For queries on the county level only. If TRUE, returns only the age-adjusted values.
@@ -18,7 +18,7 @@
 #'measure = c("SLEEP", "ACCESS2"), release = "2023")
 #'}
 #'@importFrom curl has_internet curl_fetch_memory
-#'@importFrom tigris counties tracts
+#'@importFrom tigris counties tracts zctas
 #'@importFrom sf st_as_sf
 #'@importFrom yyjsonr read_json_str
 #'
@@ -26,90 +26,27 @@
 #'@returns A data frame that contains observations for each measure and geographic level.
 
 get_places <- function(geography = "county", state = NULL, measure = NULL, county = NULL,
-                       release = "2024", geometry = FALSE, cat = NULL, age_adjust = NULL){
+                       release = "2025", geometry = FALSE, cat = NULL, age_adjust = NULL){
 
   if(!is.null(cat)){
     if(!is.null(measure)){
-      message("A category was provided. Any items included in the 'measure' argument will be overrideen.")
+      message("A category was provided. Any items included in the 'measure' argument will be overridden.")
     }
     measure = unique(measures[measures$categoryid == cat,]$measureid)
   }
 
   # Assigning base url
-  if(release == "2024"){
-    if(geography == "county"){
+base <- paste0(api_urls[api_urls$release %in% release &
+                   api_urls$geography %in% geography,]$url,
+               "?$query=SELECT%20*%20")
 
-      base <-  "https://data.cdc.gov/resource/swc5-untb.json?$query=SELECT%20*%20"
+if(geography == "census"){
+  stop("As of version 1.1.11, 'census' geography has been changed to 'tract' for clarity. Please adjust your code accordingly.")
+}
 
-    } else if(geography == "census"){
-
-      base <- "https://data.cdc.gov/resource/cwsq-ngmh.json?$query=SELECT%20*%20"
-
-    }else if(geography == "zcta"){
-
-      base <- "https://data.cdc.gov/resource/qnzd-25i4.json?$query=SELECT%20*%20"
-
-    }else{
-      stop("Geographic level not supported. Please enter 'census', 'county', or 'zcta'.")
-    }
-  }else if(release == "2023"){
-    if(geography == "county"){
-
-      base <- "https://data.cdc.gov/resource/h3ej-a9ec.json?$query=SELECT%20*%20"
-
-    } else if(geography == "census"){
-
-      base <- "https://data.cdc.gov/resource/em5e-5hvn.json?$query=SELECT%20*%20"
-    }else if(geography == "zcta"){
-
-      base <- "https://data.cdc.gov/resource/9umn-c3jf.json?$query=SELECT%20*%20"
-
-    }else{
-      stop("Geographic level not supported. Please enter 'census', 'county', or 'zcta'.")
-    }
-
-  }else if(release == "2022"){
-    if(geography == "county"){
-
-      base <- "https://data.cdc.gov/resource/duw2-7jbt.json?$query=SELECT%20*%20"
-
-    } else if(geography == "census"){
-
-      base <- "https://data.cdc.gov/resource/nw2y-v4gm.json?$query=SELECT%20*%20"
-
-    }else{
-      stop("Geographic level not supported. Please enter 'census' or 'county'.")
-    }
-
-  }else if(release == "2021"){
-    if(geography == "county"){
-
-      base <- "https://data.cdc.gov/resource/pqpp-u99h.json?$query=SELECT%20*%20"
-
-    } else if(geography == "census"){
-
-      base <- "https://data.cdc.gov/resource/373s-ayzu.json?$query=SELECT%20*%20"
-
-    }else{
-      stop("Geographic level not supported. Please enter 'census' or 'county'.")
-    }
-
-  }else if(release == "2020"){
-    if(geography == "county"){
-
-      base <- "https://data.cdc.gov/resource/dv4u-3x3q.json?$query=SELECT%20*%20"
-
-    } else if(geography == "census"){
-
-      base <- "https://data.cdc.gov/resource/4ai3-zynv.json?$query=SELECT%20*%20"
-
-    }else{
-      stop("Geographic level not supported. Please enter 'census' or 'county'.")
-    }
-
-  }else{
-    stop("Release year is not available. Please enter a year 2020-2024.")
-  }
+if(is.na(base)){
+  meassage("Geographic level not supported.")
+}
 
   # Check for internet
 
@@ -386,7 +323,7 @@ if(isTRUE(geometry)){
 
 
 
-  }else if(geography == "census"){
+  }else if(geography == "tract"){
 
     if(is.null(state)){
       stop("You must provide state names in order to add shapefiles to this query.", call. = FALSE)
@@ -606,7 +543,7 @@ format_query <- function(x, var, operator, type){
   } else if(var == "county"){
     if(type == "county"){
       var <- "locationname"
-    } else if(type == "census"){
+    } else if(type == "tract"){
       var <- "countyname"
     }
   }
@@ -712,7 +649,7 @@ check_multiples <- function(state, county){
 }
 
 
-#'checks if returned county/census data contains overlapping county names
+#'checks if returned county/census tract data contains overlapping county names
 #'@param state names of states given in get_places call
 #'@param county names of counties given in get_places call
 #'@param places the queried places data
@@ -763,7 +700,7 @@ check_multiples_cc <- function(state, county, places, geography){
                     places$locationid %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
               ]
 
-            }else if (geography == "census"){
+            }else if (geography == "tract"){
               places[
                 !(places$stateabbr %in% sep_response &
                     places$countyfips %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
@@ -780,7 +717,7 @@ check_multiples_cc <- function(state, county, places, geography){
                 places$locationid %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
             ]
 
-          }else if (geography == "census"){
+          }else if (geography == "tract"){
 
 
             places_filtered <- places[

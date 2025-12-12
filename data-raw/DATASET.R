@@ -1,26 +1,9 @@
 library(dplyr)
+library(googlesheets4)
 
 measures <- get_dictionary()
 
-# measures23 <- get_places(state = "MI") %>%
-#   select(year, measureid, short_question_text, measure, categoryid) %>%
-#   unique() %>%
-#   mutate(release = "2023")
-#
-# measures22 <- get_places(state = "MI", release = "2022") %>%
-#   select(year, measureid, short_question_text, measure, categoryid) %>%
-#   unique() %>%
-#   mutate(release = "2022")
-#
-# measures21 <- get_places(state = "MI", release = "2021") %>%
-#   select(year, measureid, short_question_text, measure, categoryid) %>%
-#   unique() %>%
-#   mutate(release = "2021")
-#
-# measures20 <- get_places(state = "MI", release = "2020") %>%
-#   select(year, measureid, short_question_text, measure, categoryid) %>%
-#   unique() %>%
-#   mutate(release = "2020")
+api_urls <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1kYtpuH9DeKQJ6TxYhbBsUR2Kr9p_o3T1dPw1-nfpVB0/edit?gid=0#gid=0")
 
-usethis::use_data(measures, internal = TRUE, compress = "xz", overwrite = TRUE)
+usethis::use_data(measures, api_urls, internal = TRUE, compress = "xz", overwrite = TRUE)
 
