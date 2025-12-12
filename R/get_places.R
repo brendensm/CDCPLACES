@@ -21,7 +21,6 @@
 #'@importFrom tigris counties tracts
 #'@importFrom sf st_as_sf
 #'@importFrom yyjsonr read_json_str
-#'@importFrom zctaCrosswalk zcta_crosswalk
 #'
 #'@export get_places
 #'@returns A data frame that contains observations for each measure and geographic level.
