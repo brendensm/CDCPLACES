@@ -9,12 +9,15 @@
 ## New features
 
 * Added support for 2025 release year data.
+* Added support for `'place'` geography (cities, towns, and CDPs) across all release years 2020–2025, including `geometry` and `age_adjust` support.
 * API endpoint URLs are now stored in an internal data frame (`api_urls`) rather than being hardcoded, making it easier to add future release years.
+* `data-raw/DATASET.R` now uses the Socrata Discovery API to programmatically discover all PLACES endpoints, replacing the manual Google Sheets approach.
 
 ## Performance improvements
 
 * Rewrote `formatted_zctas()`, `measure_text()`, and `format_query()` to use SQL `IN` operators instead of chained `LIKE`/`OR` clauses, producing shorter and more efficient API queries.
 * Increased ZCTA and other query row limits from 50,000 to 5,000,000 to prevent silent truncation of large result sets.
+* ZCTA queries that would exceed Socrata's URL length limit (~7,000 characters) are now automatically batched into multiple smaller requests, preventing failures when querying states with many ZCTAs (e.g., Texas with ~2,000 ZCTAs).
 
 ## Bug fixes
 

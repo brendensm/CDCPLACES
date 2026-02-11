@@ -180,6 +180,31 @@ test_that("zcta: errors when state is missing", {
   )
 })
 
+# --- Place tests --------------------------------------------------------------
+
+test_that("place: single state, single measure", {
+  skip_if_api_unavailable()
+
+  result <- get_places(geography = "place", state = "MI", measure = "SLEEP", release = "2025")
+
+  expect_s3_class(result, "data.frame")
+  expect_gt(nrow(result), 0)
+  expect_true(all(c("data_value", "measureid", "stateabbr", "locationid") %in% names(result)))
+  expect_true(all(result$stateabbr == "MI"))
+  expect_true(all(result$measureid == "SLEEP"))
+  expect_true(is.numeric(result$data_value))
+})
+
+test_that("place: age_adjust = TRUE returns only age-adjusted values", {
+  skip_if_api_unavailable()
+
+  result <- get_places(geography = "place", state = "DC", measure = "SLEEP", release = "2025", age_adjust = TRUE)
+
+  expect_s3_class(result, "data.frame")
+  expect_gt(nrow(result), 0)
+  expect_true(all(result$datavaluetypeid == "AgeAdjPrv"))
+})
+
 # --- get_dictionary() ---------------------------------------------------------
 
 test_that("get_dictionary returns a data frame of measures", {

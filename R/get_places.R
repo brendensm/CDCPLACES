@@ -2,14 +2,14 @@
 #'
 #'Use this function to access CDC PLACES API data. Measures are sourced from the Behavioral Risk Factor Surveillance System and the American Community Survey ACS.
 #'
-#'@param geography The level of desired geography. Currently supports 'county', 'tract', and 'zcta'.
+#'@param geography The level of desired geography. Currently supports 'county', 'place', 'tract', and 'zcta'.
 #'@param state Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.
 #'@param measure Specify the measures of the data pull. Supports multiple measures if desired. For a full list of available measures, see the function 'get_dictionary'.
-#'@param county Specify the county of the desired data using the full name of the county, with a capital letter.
+#'@param county Specify the county of the desired data using the full name of the county, with a capital letter. Not supported for 'place' or 'zcta' geography (use 'state' to filter instead).
 #'@param release Specify the year of release for the PLACES data set. Currently supports years 2020-2025.
 #'@param geometry if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.
 #'@param cat Specify the category of measures to return. Overrides the argument 'measure'. Category ID must be used here. Options include 'DISABILT', 'HLTHOUT', 'HLTHSTAT', 'PREVENT', 'RISKBEH', and 'SOCLNEED' (for release 2024). To see all the available categories and their corresponding variables, run get_dictionary.
-#'@param age_adjust For queries on the county level only. If TRUE, returns only the age-adjusted values.
+#'@param age_adjust For queries on the county or place level. If TRUE, returns only the age-adjusted values.
 #'
 #'@examples
 #'\dontrun{
@@ -18,7 +18,7 @@
 #'measure = c("SLEEP", "ACCESS2"), release = "2023")
 #'}
 #'@importFrom curl has_internet curl_fetch_memory
-#'@importFrom tigris counties tracts zctas
+#'@importFrom tigris counties places tracts zctas
 #'@importFrom sf st_as_sf
 #'@importFrom yyjsonr read_json_str
 #'
@@ -32,6 +32,10 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
     stop("As of version 1.1.11, 'census' geography has been changed to 'tract' for clarity. Please adjust your code accordingly.")
   }
 
+  if(!is.null(county) && geography == "place"){
+    stop("The 'county' parameter is not supported for place geography. Use 'state' to filter place data instead.")
+  }
+
   if(!is.null(cat)){
     if(!is.null(measure)){
       message("A category was provided. Any items included in the 'measure' argument will be overridden.")
@@ -43,8 +47,15 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
   base_url <- api_urls[api_urls$release %in% release &
                      api_urls$geography %in% geography,]$url
 
-  if(length(base_url) == 0 || is.na(base_url)){
+
+  if(length(base_url) == 0){
     stop("Geographic level or release year not supported.")
+  }
+
+  if(is.na(base_url)){
+    stop("ZCTA data is not available for the 2024 release. ",
+         "The CDC did not publish a long-format ZCTA dataset for this release year. ",
+         "Please use release '2023' or '2025' instead.")
   }
 
   base <- paste0(base_url, "?$query=SELECT%20*%20")
@@ -100,16 +111,11 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       stop("You must select at least one state to query ZCTA data.")
     }else if(is.null(measure)){
 
-      places1 <- paste0(base, formatted_zctas(zlist), "%20LIMIT%205000000") |>
-        curl::curl_fetch_memory()
-
-      places_out <-  parse_request(places1$content)
+      places_out <- fetch_zcta_batched(base, zlist)
 
     }else{
-      places1 <- paste0(base, formatted_zctas(zlist), measure_text(measure), "%20LIMIT%205000000") |>
-        curl::curl_fetch_memory()
 
-      places_out <- parse_request(places1$content)
+      places_out <- fetch_zcta_batched(base, zlist, measure)
 
     }
 
@@ -355,12 +361,29 @@ if(isTRUE(geometry)){
     places_out <- merge(places_out, geo, by.x = "locationid", by.y = tract_geoid) |>
       sf::st_as_sf()
 
+  }else if(geography == "place"){
+
+    if(is.null(state)){
+      stop("You must provide state names in order to add shapefiles to this query.", call. = FALSE)
+    }
+
+    geo <- data.frame()
+
+    for (i in state){
+      geo_add <- tigris::places(state = i, year = 2020)
+      geo_add <- geo_add[, c("GEOID", "geometry")]
+      geo <- rbind(geo, geo_add)
+    }
+
+    places_out <- merge(places_out, geo, by.x = "locationid", by.y = "GEOID") |>
+      sf::st_as_sf()
+
   }
 
 
   }
 
-  if(geography == "county"){
+  if(geography %in% c("county", "place")){
 
     if(isTRUE(age_adjust)){
       places_out <- places_out[places_out$datavaluetypeid == "AgeAdjPrv",]
@@ -528,7 +551,7 @@ format_query <- function(x, var, operator, type){
   } else if(var == "state"){
     var <- "stateabbr"
   } else if(var == "county"){
-    if(type == "county"){
+    if(type %in% c("county", "place")){
       var <- "locationname"
     } else if(type == "tract"){
       var <- "countyname"
@@ -554,6 +577,44 @@ to_title_case <- function(x) {
       paste0(toupper(substring(w, 1, 1)), substring(w, 2))
     }, character(1)), collapse = " ")
   }, character(1), USE.NAMES = FALSE)
+}
+
+#'Fetch ZCTA data, batching requests if the URL would exceed the max length
+#'@param base the base API URL with query prefix
+#'@param zlist vector of ZCTAs to query
+#'@param measure optional measure filter
+#'@param max_url_length maximum URL length before batching (Socrata limit ~7000)
+#'@noRd
+fetch_zcta_batched <- function(base, zlist, measure = NULL, max_url_length = 7000){
+
+  suffix <- if(is.null(measure)){
+    "%20LIMIT%205000000"
+  }else{
+    paste0(measure_text(measure), "%20LIMIT%205000000")
+  }
+
+  full_url <- paste0(base, formatted_zctas(zlist), suffix)
+
+  if(nchar(full_url) <= max_url_length){
+    resp <- curl::curl_fetch_memory(full_url)
+    return(parse_request(resp$content))
+  }
+
+  # Estimate batch size that keeps URL under the limit
+  overhead <- nchar(paste0(base, "WHERE%20locationname%20IN%20('')", suffix))
+  chars_per_zcta <- 8  # 5 digits + "','"
+  batch_size <- max(1, floor((max_url_length - overhead) / chars_per_zcta))
+
+  batches <- split(zlist, ceiling(seq_along(zlist) / batch_size))
+
+  results <- lapply(batches, function(batch){
+    url <- paste0(base, formatted_zctas(batch), suffix)
+    resp <- curl::curl_fetch_memory(url)
+    parse_request(resp$content)
+  })
+
+  do.call(rbind, results)
+
 }
 
 #'parses the json content from an API response

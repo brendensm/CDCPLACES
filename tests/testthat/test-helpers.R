@@ -158,3 +158,24 @@ test_that("get_places errors for unsupported geography", {
 test_that("get_places errors for unsupported release year", {
   expect_error(get_places(release = "1999"), "not supported")
 })
+
+test_that("get_places errors for ZCTA with 2024 release", {
+  expect_error(
+    get_places(geography = "zcta", state = "MI", release = "2024"),
+    "not available for the 2024 release"
+  )
+})
+
+test_that("get_places errors when county is used with place geography", {
+  expect_error(
+    get_places(geography = "place", state = "MI", county = "Wayne"),
+    "not supported for place geography"
+  )
+})
+
+# --- format_query() with place geography ------------------------------------
+
+test_that("format_query maps county var to locationname for place geography", {
+  result <- format_query("Springfield", "county", "AND", "place")
+  expect_equal(result, "AND%20locationname%20%3D%20'Springfield'")
+})
