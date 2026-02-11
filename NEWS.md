@@ -26,6 +26,8 @@
 * Guarded `readline()` calls in `check_multiples()` and `check_multiples_cc()` with `interactive()` checks so the package no longer hangs in non-interactive contexts (Shiny, knitr, CI). Defaults to including all overlapping counties with a message.
 * Replaced hardcoded column indices (`places_out[8:11]`) in the ZCTA path with named column references, preventing incorrect conversions if the API schema changes.
 * Fixed typo in `cat` argument message ("overrideen" → "overridden").
+* Fixed `geometry = TRUE` using 2010 Census shapefiles for 2024+ release data. PLACES switched to 2020 Census geographies starting with the 2024 release, so tract and ZCTA GEOIDs no longer matched. Geometry vintage is now selected based on the `release` year.
+* Fixed county filter using `toupper()` which caused a case-sensitive mismatch with the API's title-case `locationname` values. Added `to_title_case()` helper to normalize county names regardless of user input casing.
 
 ## Testing
 

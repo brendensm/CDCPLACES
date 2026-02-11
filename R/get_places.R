@@ -120,20 +120,28 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
     if(isTRUE(geometry)){
 
-      geo <- data.frame()
+      if(release %in% c("2024", "2025")){
+
+        geo <- tigris::zctas(year = 2020)
+        geo <- geo[geo$ZCTA5CE20 %in% places_out$locationid, c("ZCTA5CE20", "geometry")]
+
+        places_out <- merge(places_out, geo, by.x = "locationid", by.y = "ZCTA5CE20") |>
+          sf::st_as_sf()
+
+      }else{
+
+        geo <- data.frame()
 
         for(i in state){
-
           geo_add <- tigris::zctas(state = i, year = 2010)
-
           geo_add <- geo_add[,c("ZCTA5CE10", "geometry")]
-
           geo <- rbind(geo, geo_add)
-
         }
 
         places_out <- merge(places_out, geo, by.x = "locationid", by.y = "ZCTA5CE10") |>
           sf::st_as_sf()
+
+      }
 
     }
 
@@ -331,37 +339,23 @@ if(isTRUE(geometry)){
 
     if(is.null(state)){
       stop("You must provide state names in order to add shapefiles to this query.", call. = FALSE)
-    }else if(length(state) > 1){
-
-      geo <- data.frame()
-
-      for (i in state){
-
-        geo_add <- tigris::tracts(state = i, year = 2010) #|>
-
-        geo_add <- geo_add[,c("GEOID10", "geometry")]
-
-        geo <- rbind(geo, geo_add)
-
-      }
-
-      places_out <- merge(places_out, geo, by.x = "locationid", by.y = "GEOID10") |>
-        sf::st_as_sf()
-
-    }else{
-
-      geo <- tigris::tracts(state = state, year = 2010) #|>
-
-      geo <- geo[,c("GEOID10", "geometry")]
-
-      places_out <- merge(places_out, geo, by.x = "locationid", by.y = "GEOID10") |>
-        sf::st_as_sf()
-
-
-      }
-
-
     }
+
+    tract_year <- if(release %in% c("2024", "2025")) 2020 else 2010
+    tract_geoid <- if(tract_year == 2020) "GEOID" else "GEOID10"
+
+    geo <- data.frame()
+
+    for (i in state){
+      geo_add <- tigris::tracts(state = i, year = tract_year)
+      geo_add <- geo_add[, c(tract_geoid, "geometry")]
+      geo <- rbind(geo, geo_add)
+    }
+
+    places_out <- merge(places_out, geo, by.x = "locationid", by.y = tract_geoid) |>
+      sf::st_as_sf()
+
+  }
 
 
   }
