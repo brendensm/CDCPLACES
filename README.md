@@ -1,6 +1,7 @@
 <!-- badges: start -->
   [![R-CMD-check](https://github.com/brendensm/CDCPLACES/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/brendensm/CDCPLACES/actions/workflows/R-CMD-check.yaml)
   [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/CDCPLACES)](https://cran.r-project.org/package=CDCPLACES)
+  [![](https://img.shields.io/badge/devel%20version-1.2.0-royalblue.svg)](https://github.com/quanteda/spacyr)
 
   <!-- badges: end -->
 
@@ -28,7 +29,7 @@ install.packages("CDCPLACES")
 
 # Main Functions
 
--   `get_places` &mdash; a function to query the PLACES API. Arguments allows the user to specify geography (census/county), state, measure, release (2020-2023), and geometry (to include shapefiles).
+-   `get_places` &mdash; a function to query the PLACES API. Arguments allows the user to specify geography (county/census tract/ZCTA/place), state, measure, release, and geometry (to include shapefiles).
 -   `get_dictionary` &mdash; a function to pull a full list of the measures available in the PLACES data set.
 
 # Examples
