@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">CDCPLACES</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
 <span>  state <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  measure <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  county <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  release <span class="op">=</span> <span class="st">"2024"</span>,</span>
+<span>  release <span class="op">=</span> <span class="st">"2025"</span>,</span>
 <span>  geometry <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cat <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  age_adjust <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -56,7 +56,7 @@
 
 
 <dl><dt id="arg-geography">geography<a class="anchor" aria-label="anchor" href="#arg-geography"></a></dt>
-<dd><p>The level of desired geography. Currently supports 'county', 'census', and 'zcta'.</p></dd>
+<dd><p>The level of desired geography. Currently supports 'county', 'place', 'tract', and 'zcta'.</p></dd>
 
 
 <dt id="arg-state">state<a class="anchor" aria-label="anchor" href="#arg-state"></a></dt>
@@ -64,15 +64,15 @@
 
 
 <dt id="arg-measure">measure<a class="anchor" aria-label="anchor" href="#arg-measure"></a></dt>
-<dd><p>Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.</p></dd>
+<dd><p>Specify the measures of the data pull. Supports multiple measures if desired. For a full list of available measures, see the function 'get_dictionary'.</p></dd>
 
 
 <dt id="arg-county">county<a class="anchor" aria-label="anchor" href="#arg-county"></a></dt>
-<dd><p>Specify the county of the desired data using the full name of the county, with a capital letter.</p></dd>
+<dd><p>Specify the county of the desired data using the full name of the county, with a capital letter. Not supported for 'place' or 'zcta' geography (use 'state' to filter instead).</p></dd>
 
 
 <dt id="arg-release">release<a class="anchor" aria-label="anchor" href="#arg-release"></a></dt>
-<dd><p>Specify the year of release for the PLACES data set. Currently supports years 2020-2024.</p></dd>
+<dd><p>Specify the year of release for the PLACES data set. Currently supports years 2020-2025.</p></dd>
 
 
 <dt id="arg-geometry">geometry<a class="anchor" aria-label="anchor" href="#arg-geometry"></a></dt>
@@ -84,7 +84,7 @@
 
 
 <dt id="arg-age-adjust">age_adjust<a class="anchor" aria-label="anchor" href="#arg-age-adjust"></a></dt>
-<dd><p>For queries on the county level only. If TRUE, returns only the age-adjusted values.</p></dd>
+<dd><p>For queries on the county or place level. If TRUE, returns only the age-adjusted values.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -110,7 +110,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

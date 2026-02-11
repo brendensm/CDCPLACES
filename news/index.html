@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">CDCPLACES</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,65 @@
       <small>Source: <a href="https://github.com/brendensm/CDCPLACES/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.0" id="cdcplaces-120">CDCPLACES 1.2.0<a class="anchor" aria-label="anchor" href="#cdcplaces-120"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-1-2-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-1-2-0"></a></h3>
+<ul><li>The <code>geography</code> argument value <code>'census'</code> has been renamed to <code>'tract'</code> for clarity. Using <code>'census'</code> now produces an informative error directing users to update their code.</li>
+<li>The default <code>release</code> year is now <code>"2025"</code>.</li>
+<li>Minimum R version bumped to 4.1.0 (required for the base pipe <code>|&gt;</code>).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-1-2-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-2-0"></a></h3>
+<ul><li>Added support for 2025 release year data.</li>
+<li>Added support for <code>'place'</code> geography (cities, towns, and CDPs) across all release years 2020–2025, including <code>geometry</code> and <code>age_adjust</code> support.</li>
+<li>API endpoint URLs are now stored in an internal data frame (<code>api_urls</code>) rather than being hardcoded, making it easier to add future release years.</li>
+<li>
+<code>data-raw/DATASET.R</code> now uses the Socrata Discovery API to programmatically discover all PLACES endpoints, replacing the manual Google Sheets approach.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="performance-improvements-1-2-0">Performance improvements<a class="anchor" aria-label="anchor" href="#performance-improvements-1-2-0"></a></h3>
+<ul><li>Rewrote <code>formatted_zctas()</code>, <code>measure_text()</code>, and <code>format_query()</code> to use SQL <code>IN</code> operators instead of chained <code>LIKE</code>/<code>OR</code> clauses, producing shorter and more efficient API queries.</li>
+<li>Increased ZCTA and other query row limits from 50,000 to 5,000,000 to prevent silent truncation of large result sets.</li>
+<li>ZCTA queries that would exceed Socrata’s URL length limit (~7,000 characters) are now automatically batched into multiple smaller requests, preventing failures when querying states with many ZCTAs (e.g., Texas with ~2,000 ZCTAs).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-2-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-0"></a></h3>
+<ul><li>Fixed operator precedence bug in <code>check_multiples()</code> and <code>check_multiples_cc()</code> where <code>nrow(final_sum &gt; 0)</code> was evaluated instead of <code>nrow(final_sum) &gt; 0</code>.</li>
+<li>Fixed <code>check_api()</code> and <code>test_check_api()</code> crashing with <code>$ operator is invalid for atomic vectors</code> when a connection-level error (DNS failure, timeout) occurred instead of an HTTP response.</li>
+<li>Fixed missing <code><a href="https://rdrr.io/r/base/function.html" class="external-link">return()</a></code> calls in <code>check_multiples()</code> and <code>check_multiples_cc()</code> that caused values to silently be lost on several code paths.</li>
+<li>Fixed geography validation order so the informative <code>'census'</code> deprecation message is shown instead of a generic error.</li>
+<li>Fixed base URL validation so unsupported geography or release year values produce a clear error instead of a malformed API request.</li>
+<li>Guarded <code><a href="https://rdrr.io/r/base/readline.html" class="external-link">readline()</a></code> calls in <code>check_multiples()</code> and <code>check_multiples_cc()</code> with <code><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive()</a></code> checks so the package no longer hangs in non-interactive contexts (Shiny, knitr, CI). Defaults to including all overlapping counties with a message.</li>
+<li>Replaced hardcoded column indices (<code>places_out[8:11]</code>) in the ZCTA path with named column references, preventing incorrect conversions if the API schema changes.</li>
+<li>Fixed typo in <code>cat</code> argument message (“overrideen” → “overridden”).</li>
+<li>Fixed <code>geometry = TRUE</code> using 2010 Census shapefiles for 2024+ release data. PLACES switched to 2020 Census geographies starting with the 2024 release, so tract and ZCTA GEOIDs no longer matched. Geometry vintage is now selected based on the <code>release</code> year.</li>
+<li>Fixed county filter using <code><a href="https://rdrr.io/r/base/chartr.html" class="external-link">toupper()</a></code> which caused a case-sensitive mismatch with the API’s title-case <code>locationname</code> values. Added <code>to_title_case()</code> helper to normalize county names regardless of user input casing.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="testing-1-2-0">Testing<a class="anchor" aria-label="anchor" href="#testing-1-2-0"></a></h3>
+<ul><li>Added 23 offline unit tests for internal helpers and input validators that run on CRAN (<code>test-helpers.R</code>).</li>
+<li>Rewrote API integration tests: replaced fragile outer <code>if</code>/<code>for</code> blocks with <code>skip_if_api_unavailable()</code> inside each <code>test_that()</code> for proper skip reporting.</li>
+<li>Condensed API tests from 60 year-by-combination tests to 15 targeted tests with deeper assertions (column names, filter correctness, numeric types, row counts).</li>
+<li>Added test coverage for <code>county</code>, <code>age_adjust</code>, <code>cat</code>, <code><a href="../reference/get_dictionary.html">get_dictionary()</a></code>, ZCTA geography, and graceful no-internet failure.</li>
+<li>Removed <code>Sys.sleep(10)</code> calls and duplicate test blocks.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-changes-1-2-0">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-1-2-0"></a></h3>
+<ul><li>Added <code>\dontrun{}</code> wrappers to examples.</li>
+<li>Removed dead code: unused <code>stop_quietly()</code>, <code>firstup()</code>, and commented-out <code>httr</code> references.</li>
+<li>Cleaned up stale entries in <code><a href="https://rdrr.io/r/utils/globalVariables.html" class="external-link">globalVariables()</a></code>.</li>
+<li>Fixed documentation: <code>@param measure</code> now correctly says “multiple measures” instead of “multiple states”; <code>parse_request()</code> docstring updated from <code>httr2</code> to <code>curl</code>.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.10" id="cdcplaces-1110">CDCPLACES 1.1.10<a class="anchor" aria-label="anchor" href="#cdcplaces-1110"></a></h2><p class="text-muted">CRAN release: 2025-05-22</p>
+<ul><li>Increment version for CRAN resubmission.</li>
+<li>Added <code>skip_on_cran()</code> to all test cases.</li>
+<li>Added <code>\dontrun{}</code> to examples.</li>
+<li>Removed problematic CDC URL from documentation.</li>
+<li>Updated minimum R version to 4.1.0 in DESCRIPTION.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.9" id="cdcplaces-119">CDCPLACES 1.1.9<a class="anchor" aria-label="anchor" href="#cdcplaces-119"></a></h2><p class="text-muted">CRAN release: 2025-02-10</p>
 <ul><li>Edits the logic of check_api to stop the main function and return a null value if the api is unable to be reached.</li>
@@ -79,7 +138,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
