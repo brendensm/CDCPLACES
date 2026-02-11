@@ -9,14 +9,14 @@ get_places(
   state = NULL,
   measure = NULL,
   county = NULL,
-  release = "2024",
+  release = "2025",
   geometry = FALSE,
   cat = NULL,
   age_adjust = NULL
 )
 }
 \arguments{
-\item{geography}{The level of desired geography. Currently supports 'county', 'census', and 'zcta'.}
+\item{geography}{The level of desired geography. Currently supports 'county', 'tract', and 'zcta'.}
 
 \item{state}{Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.}
 
@@ -24,7 +24,7 @@ get_places(
 
 \item{county}{Specify the county of the desired data using the full name of the county, with a capital letter.}
 
-\item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2024.}
+\item{release}{Specify the year of release for the PLACES data set. Currently supports years 2020-2025.}
 
 \item{geometry}{if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.}
 

@@ -4,7 +4,7 @@
 #'
 #'@param geography The level of desired geography. Currently supports 'county', 'tract', and 'zcta'.
 #'@param state Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.
-#'@param measure Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.
+#'@param measure Specify the measures of the data pull. Supports multiple measures if desired. For a full list of available measures, see the function 'get_dictionary'.
 #'@param county Specify the county of the desired data using the full name of the county, with a capital letter.
 #'@param release Specify the year of release for the PLACES data set. Currently supports years 2020-2025.
 #'@param geometry if FALSE (the default), return a regular data frame of PLACES data. If TRUE, uses the tigris package to return an sf data frame with simple feature geometry in the 'geometry' column.
@@ -28,6 +28,10 @@
 get_places <- function(geography = "county", state = NULL, measure = NULL, county = NULL,
                        release = "2025", geometry = FALSE, cat = NULL, age_adjust = NULL){
 
+  if(geography == "census"){
+    stop("As of version 1.1.11, 'census' geography has been changed to 'tract' for clarity. Please adjust your code accordingly.")
+  }
+
   if(!is.null(cat)){
     if(!is.null(measure)){
       message("A category was provided. Any items included in the 'measure' argument will be overridden.")
@@ -36,17 +40,13 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
   }
 
   # Assigning base url
-base <- paste0(api_urls[api_urls$release %in% release &
-                   api_urls$geography %in% geography,]$url,
-               "?$query=SELECT%20*%20")
+  base <- paste0(api_urls[api_urls$release %in% release &
+                     api_urls$geography %in% geography,]$url,
+                 "?$query=SELECT%20*%20")
 
-if(geography == "census"){
-  stop("As of version 1.1.11, 'census' geography has been changed to 'tract' for clarity. Please adjust your code accordingly.")
-}
-
-if(is.na(base)){
-  meassage("Geographic level not supported.")
-}
+  if(length(base) == 0 || is.na(base)){
+    stop("Geographic level or release year not supported.")
+  }
 
   # Check for internet
 
@@ -112,7 +112,10 @@ if(is.na(base)){
 
     }
 
-    places_out[8:11] <- lapply(places_out[8:11], as.numeric)
+    numeric_cols <- c("data_value", "low_confidence_limit",
+                       "high_confidence_limit", "data_value_footnote_symbol")
+    numeric_cols <- intersect(numeric_cols, names(places_out))
+    places_out[numeric_cols] <- lapply(places_out[numeric_cols], as.numeric)
 
     if(isTRUE(geometry)){
 
@@ -430,15 +433,8 @@ check_counties <- function(x){
 #'@noRd
 check_api <- function(x){
 
-  stop_quietly <- function() {
-    opt <- options(show.error.messages = FALSE)
-    on.exit(options(opt))
-    stop()
-  }
-
   try_GET <- function(x, ...) {
     tryCatch(
-      #httr::GET(url = x, httr::timeout(10), ...),
       curl::curl_fetch_memory(url = x),
       error = function(e) conditionMessage(e),
       warning = function(w) conditionMessage(w)
@@ -447,25 +443,18 @@ check_api <- function(x){
 
   resp <- try_GET(x)
 
-  if(resp$status_code != 200){
-    #httr::message_for_status(resp)
-    message("Status code:", resp$status_code)
-    message("For full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
+  if(is.character(resp)){
+    message("API request failed: ", resp)
     return(invisible(NULL))
-    #stop_quietly()
-
-  }else{
-    return(invisible(1))
   }
 
-  # if(httr::http_error(resp)){
-  #   httr::message_for_status(resp)
-  #   message("\nFor full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
-  #   stop_quietly()
-  #   #return(invisible(NULL))
-  # }
+  if(resp$status_code != 200){
+    message("Status code: ", resp$status_code)
+    message("For full response code details visit: https://dev.socrata.com/docs/response-codes.html.")
+    return(invisible(NULL))
+  }
 
-
+  return(invisible(1))
 
 }
 
@@ -477,7 +466,6 @@ test_check_api <- function(x){
 
   try_GET <- function(x, ...) {
     tryCatch(
-     # httr::GET(url = x, httr::timeout(10), ...),
       curl::curl_fetch_memory(url = x),
       error = function(e) conditionMessage(e),
       warning = function(w) conditionMessage(w)
@@ -486,13 +474,17 @@ test_check_api <- function(x){
 
   resp <- try_GET(x)
 
-  if(resp$status_code != 200){
-    #httr::message_for_status(resp)
-    message("Status code:", resp$status_code)
+  if(is.character(resp)){
+    message("API request failed: ", resp)
     return(invisible(1))
-  }else{
-    return(invisible(0))
   }
+
+  if(resp$status_code != 200){
+    message("Status code: ", resp$status_code)
+    return(invisible(1))
+  }
+
+  return(invisible(0))
 
 }
 
@@ -557,8 +549,8 @@ format_query <- function(x, var, operator, type){
   }
 }
 
-#'parses the json of a the httr2 request
-#'@param x httr2 request object
+#'parses the json content from an API response
+#'@param x raw content from curl response
 #'@noRd
 parse_request <- function(x){
 
@@ -590,9 +582,15 @@ check_multiples <- function(state, county){
   final_sum <- aggregate(. ~ county_name, data = initial_sum, FUN = length)
   final_sum <- final_sum[, c("county_name", "n")]
 
-  if(nrow(final_sum > 0)){
+  if(nrow(final_sum) > 0){
 
     if(max(final_sum$n) > 1){
+
+      if(!interactive()){
+        message("Overlapping county names detected. Including all counties in non-interactive mode.")
+        return(trial$zcta)
+      }
+
       message("You have overlapping county names.")
       print(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, -3])
 
@@ -602,8 +600,7 @@ check_multiples <- function(state, county){
       if(response1 == "y"){
         message("OK, we will include all counties.")
 
-        trial$zcta
-
+        return(trial$zcta)
 
       }else{
 
@@ -622,9 +619,7 @@ check_multiples <- function(state, county){
             ),
           ]
 
-          return(
-            fil$zcta
-          )
+          return(fil$zcta)
 
         }else{
 
@@ -635,7 +630,7 @@ check_multiples <- function(state, county){
             ),
           ]
 
-          fil$zcta
+          return(fil$zcta)
 
         }
 
@@ -645,6 +640,8 @@ check_multiples <- function(state, county){
     }
 
   }
+
+  return(trial$zcta)
 
 }
 
@@ -669,9 +666,15 @@ check_multiples_cc <- function(state, county, places, geography){
   final_sum <- aggregate(. ~ county_name, data = initial_sum, FUN = length)
   final_sum <- final_sum[, c("county_name", "n")]
 
-  if(nrow(final_sum > 0)){
+  if(nrow(final_sum) > 0){
 
     if(max(final_sum$n) > 1){
+
+      if(!interactive()){
+        message("Overlapping county names detected. Including all counties in non-interactive mode.")
+        return(places)
+      }
+
       message("You have overlapping county names.")
       print(initial_sum[initial_sum$county_name %in% final_sum[final_sum$n>1,]$county_name, -3])
 
@@ -681,7 +684,7 @@ check_multiples_cc <- function(state, county, places, geography){
       if(response1 == "y"){
         message("OK, we will include all counties.")
 
-        places
+        return(places)
 
       }else{
 
@@ -689,49 +692,25 @@ check_multiples_cc <- function(state, county, places, geography){
 
         response2 <- readline("Response:  ")
 
-        if(nchar(response2) > 2){
-
-          sep_response <- strsplit(response2, split = " ")[[1]]
-
-
-            if(geography == "county"){
-              places[
-                !(places$stateabbr %in% sep_response &
-                    places$locationid %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
-              ]
-
-            }else if (geography == "tract"){
-              places[
-                !(places$stateabbr %in% sep_response &
-                    places$countyfips %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
-              ]
-            }
-
-        }else{
-
-
-          if(geography == "county"){
-
-            places[
-              !(places$stateabbr %in% response2 &
-                places$locationid %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
-            ]
-
-          }else if (geography == "tract"){
-
-
-            places_filtered <- places[
-              !(places$stateabbr %in% response2 &
-                  places$countyfips %in% unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])),
-            ]
-
-
-          }
-
-
-
+        exclude_states <- if(nchar(response2) > 2){
+          strsplit(response2, split = " ")[[1]]
+        } else {
+          response2
         }
 
+        overlap_fips <- unique(initial_sum$county_fips[initial_sum$county_name %in% final_sum$county_name[final_sum$n > 1]])
+
+        if(geography == "county"){
+          return(places[
+            !(places$stateabbr %in% exclude_states &
+                places$locationid %in% overlap_fips),
+          ])
+        }else if (geography == "tract"){
+          return(places[
+            !(places$stateabbr %in% exclude_states &
+                places$countyfips %in% overlap_fips),
+          ])
+        }
 
       }
 
@@ -739,12 +718,6 @@ check_multiples_cc <- function(state, county, places, geography){
 
   }
 
-}
+  return(places)
 
-#'Upper case the first letter of a string
-#'@param x string to capitalize
-#'@noRd
-firstup <- function(x) {
-  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
-  x
 }
