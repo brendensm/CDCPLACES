@@ -20,7 +20,7 @@ get_places(
 
 \item{state}{Specify the state of the desired data using the two letter abbreviation. Supports multiple states if desired.}
 
-\item{measure}{Specify the measures of the data pull. Supports multiple states if desired. For a full list of available measures, see the function 'get_dictionary'.}
+\item{measure}{Specify the measures of the data pull. Supports multiple measures if desired. For a full list of available measures, see the function 'get_dictionary'.}
 
 \item{county}{Specify the county of the desired data using the full name of the county, with a capital letter.}
 
