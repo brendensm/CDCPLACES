@@ -225,7 +225,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         base,
         format_query(state, "state", "WHERE", geography),
         "%20",
-        format_query(toupper(county), "county", "AND", geography),
+        format_query(to_title_case(county), "county", "AND", geography),
         "%20",
         "%20LIMIT%205000000"
       ) |>
@@ -245,7 +245,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         base,
         format_query(measure, "measure", "WHERE", geography),
         "%20",
-        format_query(toupper(county), "county", "AND", geography),
+        format_query(to_title_case(county), "county", "AND", geography),
         "%20LIMIT%205000000"
       ) |>
         curl::curl_fetch_memory()
@@ -265,7 +265,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
         base,
         format_query(state, "state", "WHERE", geography),
         "%20",
-        format_query(toupper(county), "county", "AND", geography),
+        format_query(to_title_case(county), "county", "AND", geography),
         "%20",
         format_query(measure, "measure", "AND", geography),
        "%20LIMIT%205000000"
@@ -548,6 +548,18 @@ format_query <- function(x, var, operator, type){
     values <- paste(x, collapse = "','")
     paste0(operator, "%20", var, "%20IN%20('", values, "')")
   }
+}
+
+#'Convert a string to title case to match API county name format
+#'@param x character vector to convert
+#'@noRd
+to_title_case <- function(x) {
+  vapply(x, function(s) {
+    words <- strsplit(tolower(s), " ")[[1]]
+    paste(vapply(words, function(w) {
+      paste0(toupper(substring(w, 1, 1)), substring(w, 2))
+    }, character(1)), collapse = " ")
+  }, character(1), USE.NAMES = FALSE)
 }
 
 #'parses the json content from an API response

@@ -112,6 +112,25 @@ test_that("check_measures allows SOCLNEED measures for 2024 release", {
   expect_error(check_measures("ISOLATION", ryear = "2024"), NA)
 })
 
+# --- to_title_case() ----------------------------------------------------------
+
+test_that("to_title_case converts single word", {
+  expect_equal(to_title_case("wayne"), "Wayne")
+  expect_equal(to_title_case("WAYNE"), "Wayne")
+  expect_equal(to_title_case("Wayne"), "Wayne")
+})
+
+test_that("to_title_case converts multi-word names", {
+  expect_equal(to_title_case("los angeles"), "Los Angeles")
+  expect_equal(to_title_case("LOS ANGELES"), "Los Angeles")
+  expect_equal(to_title_case("ST. LOUIS"), "St. Louis")
+})
+
+test_that("to_title_case handles vector input", {
+  result <- to_title_case(c("wayne", "LOS ANGELES"))
+  expect_equal(result, c("Wayne", "Los Angeles"))
+})
+
 # --- check_counties() ---------------------------------------------------------
 
 test_that("check_counties accepts valid county names", {
