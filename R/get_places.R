@@ -40,13 +40,14 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
   }
 
   # Assigning base url
-  base <- paste0(api_urls[api_urls$release %in% release &
-                     api_urls$geography %in% geography,]$url,
-                 "?$query=SELECT%20*%20")
+  base_url <- api_urls[api_urls$release %in% release &
+                     api_urls$geography %in% geography,]$url
 
-  if(length(base) == 0 || is.na(base)){
+  if(length(base_url) == 0 || is.na(base_url)){
     stop("Geographic level or release year not supported.")
   }
+
+  base <- paste0(base_url, "?$query=SELECT%20*%20")
 
   # Check for internet
 
