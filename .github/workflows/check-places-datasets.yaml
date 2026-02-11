@@ -1,0 +1,101 @@
+on:
+  schedule:
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+
+name: Check for new PLACES datasets
+
+jobs:
+  check-datasets:
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          install-r: true
+
+      - name: Install jsonlite
+        run: Rscript -e 'install.packages("jsonlite", repos = "https://cloud.r-project.org")'
+
+      - name: Check for new datasets
+        id: check
+        run: |
+          Rscript -e '
+          library(jsonlite)
+
+          # Query Socrata Discovery API
+          catalog_url <- paste0(
+            "https://api.us.socrata.com/api/catalog/v1",
+            "?domains=data.cdc.gov",
+            "&q=PLACES+Local+Data+for+Better+Health",
+            "&limit=50"
+          )
+
+          catalog <- fromJSON(catalog_url)
+
+          all_results <- data.frame(
+            id   = catalog$results$resource$id,
+            name = catalog$results$resource$name,
+            stringsAsFactors = FALSE
+          )
+
+          # Keep only PLACES long-format datasets
+          places_ds <- all_results[grepl("^PLACES: Local Data for Better Health", all_results$name), ]
+
+          api_ids <- places_ds$id
+          cat("Discovered", length(api_ids), "datasets from Socrata\n")
+
+          # Load current sysdata.rda and extract IDs from URLs
+          load("R/sysdata.rda")
+          current_urls <- api_urls$url[!is.na(api_urls$url)]
+          current_ids <- sub(".*/resource/(.*)\\.json$", "\\1", current_urls)
+          cat("Current sysdata.rda has", length(current_ids), "dataset IDs\n")
+
+          # Find new datasets
+          new_ids <- setdiff(api_ids, current_ids)
+
+          if (length(new_ids) > 0) {
+            new_ds <- places_ds[places_ds$id %in% new_ids, ]
+            cat("New datasets found:\n")
+            print(new_ds[, c("id", "name")])
+
+            # Write flag to GITHUB_OUTPUT
+            out <- Sys.getenv("GITHUB_OUTPUT")
+            cat("new_datasets=true\n", file = out, append = TRUE)
+
+            # Write issue body to a file
+            body_lines <- paste0("- **", new_ds$name, "** (`", new_ds$id, "`)")
+            body <- paste(c(
+              "The scheduled dataset check found new PLACES datasets on data.cdc.gov that are not yet in `sysdata.rda`:",
+              "",
+              body_lines,
+              "",
+              "**Next steps:** Re-run `data-raw/DATASET.R` to update the internal data, then submit a PR."
+            ), collapse = "\n")
+            writeLines(body, "new_datasets_issue.md")
+          } else {
+            cat("No new datasets found.\n")
+            out <- Sys.getenv("GITHUB_OUTPUT")
+            cat("new_datasets=false\n", file = out, append = TRUE)
+          }
+          '
+
+      - name: Open GitHub issue
+        if: steps.check.outputs.new_datasets == 'true'
+        run: |
+          # Check for an existing open issue to avoid duplicates
+          existing=$(gh issue list --search "New PLACES datasets detected" --state open --json number --jq 'length')
+          if [ "$existing" -gt 0 ]; then
+            echo "An open issue already exists, skipping."
+            exit 0
+          fi
+
+          gh issue create \
+            --title "New PLACES datasets detected" \
+            --body-file new_datasets_issue.md
