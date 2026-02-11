@@ -1,4 +1,4 @@
-# CDCPLACES 1.1.11
+# CDCPLACES 1.2.0
 
 ## Breaking changes
 
@@ -22,14 +22,22 @@
 * Fixed `check_api()` and `test_check_api()` crashing with `$ operator is invalid for atomic vectors` when a connection-level error (DNS failure, timeout) occurred instead of an HTTP response.
 * Fixed missing `return()` calls in `check_multiples()` and `check_multiples_cc()` that caused values to silently be lost on several code paths.
 * Fixed geography validation order so the informative `'census'` deprecation message is shown instead of a generic error.
+* Fixed base URL validation so unsupported geography or release year values produce a clear error instead of a malformed API request.
 * Guarded `readline()` calls in `check_multiples()` and `check_multiples_cc()` with `interactive()` checks so the package no longer hangs in non-interactive contexts (Shiny, knitr, CI). Defaults to including all overlapping counties with a message.
 * Replaced hardcoded column indices (`places_out[8:11]`) in the ZCTA path with named column references, preventing incorrect conversions if the API schema changes.
 * Fixed typo in `cat` argument message ("overrideen" → "overridden").
 
+## Testing
+
+* Added 23 offline unit tests for internal helpers and input validators that run on CRAN (`test-helpers.R`).
+* Rewrote API integration tests: replaced fragile outer `if`/`for` blocks with `skip_if_api_unavailable()` inside each `test_that()` for proper skip reporting.
+* Condensed API tests from 60 year-by-combination tests to 15 targeted tests with deeper assertions (column names, filter correctness, numeric types, row counts).
+* Added test coverage for `county`, `age_adjust`, `cat`, `get_dictionary()`, ZCTA geography, and graceful no-internet failure.
+* Removed `Sys.sleep(10)` calls and duplicate test blocks.
+
 ## Other changes
 
-* Added `\dontrun{}` wrappers to examples and `skip_on_cran()` to all tests.
-* Removed duplicate test blocks that were doubling test runtime.
+* Added `\dontrun{}` wrappers to examples.
 * Removed dead code: unused `stop_quietly()`, `firstup()`, and commented-out `httr` references.
 * Cleaned up stale entries in `globalVariables()`.
 * Fixed documentation: `@param measure` now correctly says "multiple measures" instead of "multiple states"; `parse_request()` docstring updated from `httr2` to `curl`.
