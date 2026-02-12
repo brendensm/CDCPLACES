@@ -1,5 +1,7 @@
-blockquote {
-  border-left: .25rem solid #dee2e6;
-  padding-left: 1rem;
-  color: #6c757d;
+.contents blockquote {
+  border-left: .25rem solid #dee2e6 !important;
+  padding-left: 1rem !important;
+  color: #6c757d !important;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
