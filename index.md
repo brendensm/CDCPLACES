@@ -33,8 +33,8 @@ install.packages("CDCPLACES")
 # Main Functions
 
 - `get_places` — a function to query the PLACES API. Arguments allows
-  the user to specify geography (census/county), state, measure, release
-  (2020-2023), and geometry (to include shapefiles).
+  the user to specify geography (county/census tract/ZCTA/place), state,
+  measure, release, and geometry (to include shapefiles).
 - `get_dictionary` — a function to pull a full list of the measures
   available in the PLACES data set.
 
