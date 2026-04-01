@@ -2,6 +2,8 @@
 
 ## CDCPLACES 1.2.0
 
+CRAN release: 2026-02-13
+
 ### Breaking changes
 
 - The `geography` argument value `'census'` has been renamed to
