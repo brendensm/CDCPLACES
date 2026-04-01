@@ -1,7 +1,7 @@
 <!-- badges: start -->
   [![R-CMD-check](https://github.com/brendensm/CDCPLACES/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/brendensm/CDCPLACES/actions/workflows/R-CMD-check.yaml)
   [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/CDCPLACES)](https://cran.r-project.org/package=CDCPLACES)
-  [![](https://img.shields.io/badge/devel%20version-1.2.0-royalblue.svg)](https://github.com/quanteda/spacyr)
+  [![](https://img.shields.io/badge/devel%20version-1.2.1-royalblue.svg)](https://github.com/brendensm/CDCPLACES)
 
   <!-- badges: end -->
 
