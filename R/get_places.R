@@ -115,6 +115,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
 
     }else{
 
+      lapply(measure, check_measures, ryear=release)
       places_out <- fetch_zcta_batched(base, zlist, measure)
 
     }
