@@ -102,7 +102,7 @@ test_that("county: age_adjust = TRUE returns only age-adjusted values", {
 test_that("county: cat argument returns measures from that category", {
   skip_if_api_unavailable()
 
-  result <- get_places(state = "MI", cat = "PREVENT", release = "2025")
+  result <- get_places(state = "MI", cat = "PREVENT", release = "2023")
 
   expect_s3_class(result, "data.frame")
   expect_gt(nrow(result), 0)
@@ -114,7 +114,7 @@ test_that("county: cat overrides measure with a message", {
   skip_if_api_unavailable()
 
   expect_message(
-    result <- get_places(state = "MI", measure = "SLEEP", cat = "PREVENT", release = "2025"),
+    result <- get_places(state = "MI", measure = "SLEEP", cat = "PREVENT", release = "2023"),
     "overridden"
   )
 
