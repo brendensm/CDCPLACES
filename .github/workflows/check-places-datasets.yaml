@@ -5,6 +5,9 @@ on:
 
 name: Check for new PLACES datasets
 
+permissions:
+  issues: write
+
 jobs:
   check-datasets:
     runs-on: ubuntu-latest
