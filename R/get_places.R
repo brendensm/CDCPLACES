@@ -404,13 +404,30 @@ if(isTRUE(geometry)){
 
 check_measures <- function(x, ryear){
 
-    if(ryear != "2024"){
+    release_name <- paste0("places_release_", ifelse(ryear == 2025, 2024, ryear))
+    # this step will eventually filter a list of available measures for each release year.
+    # Measures contains a saved copy of the data dictionary provided by PLACES.
+    # Currently, they have not updated this to reflect the newest release of 2025.
+    # When that data frame is updated this code will change.
+
+    measure_release <- measures[,c("measureid", "categoryid", release_name)]
+
+   # measure_release[,release_name] <- as.numeric(measure_release[,release_name])
+    available_measures <- measure_release[measure_release[,release_name] != "X",]$measureid
+
+    if(!(ryear %in% c("2024", "2025"))){
       if(x %in% measures[measures$categoryid == "SOCLNEED",]$measureid){
-        stop("Health-related social needs variables are currently only available for 2024 release data.")
+        stop("Health-related social needs variables are currently only available for 2024 and 2025 release data.")
       }
     }
 
-    if(!(x %in% measures$measureid)){
+    if(!(ryear %in% c("2023", "2024", "2025"))){
+      if(x %in% measures[measures$categoryid == "DISABILT",]$measureid){
+        stop("Disability variables are currently only available for 2023, 2024, and 2025 release data.")
+      }
+    }
+
+    if(!(x %in% available_measures)){
       stop(paste("Please enter a valid measure for release year. For a full list of valid measures, use the function 'get_dictionary'."))
     }
 
