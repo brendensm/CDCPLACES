@@ -1,5 +1,32 @@
 # Changelog
 
+## CDCPLACES 1.2.1
+
+### Updates
+
+- `check_measures()` now validates measures against per-release
+  availability from the PLACES data dictionary (the `X`-mark
+  availability matrix) rather than just checking membership in the full
+  measures list. Invalid measures for a given release year now raise a
+  clearer error.
+- Health-related social needs (SOCLNEED) measures are now permitted for
+  the 2025 release in addition to 2024. The error message has been
+  updated accordingly.
+- Added a dedicated error for Disability (DISABILT) measures when
+  requested for a release year prior to 2023.
+- Measure validation is now also applied to the ZCTA code path
+  (previously only county/tract/place queries were validated).
+- Updated internal `sysdata.rda` to include the 2024 ZCTA release API
+  endpoint, enabling ZCTA queries against the 2024 release.
+
+### Tests
+
+- Removed the obsolete test asserting that `geography = "zcta"` with
+  `release = "2024"` errors, since the 2024 ZCTA endpoint is now
+  supported.
+- Adjusted a couple of `cat` argument tests to use the 2023 release
+  while the 2025 data dictionary remains incomplete upstream.
+
 ## CDCPLACES 1.2.0
 
 CRAN release: 2026-02-13

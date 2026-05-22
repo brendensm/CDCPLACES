@@ -24,12 +24,14 @@ From the [CDC’s website:](https://www.cdc.gov/places/about/index.html)
 To install the latest development version run:
 
 ``` r
+
 devtools::install_github("brendensm/CDCPLACES")
 ```
 
 To install from CRAN:
 
 ``` r
+
 install.packages("CDCPLACES")
 ```
 
