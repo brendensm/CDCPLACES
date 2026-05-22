@@ -1,29 +1,21 @@
 ## This is an update to CDCPLACES
 
-# CDCPLACES 1.2.0
+# CDCPLACES 1.2.1
 
-This is a major update that adds support for the 2025 PLACES release, fixes
-numerous bugs, improves query performance, and substantially rewrites the test
-suite.
+This is a minor update that improves measure validation and adds support for
+the 2024 ZCTA release endpoint.
 
 ### Key changes
 
-* Added support for 2025 release year data (now the default).
-* Added support for `'place'` geography (cities, towns, and CDPs) across all
-  release years 2020–2025, including `geometry` and `age_adjust` support.
-* Renamed `geography = "census"` to `geography = "tract"` (with informative
-  deprecation error).
-* Fixed `geometry = TRUE` to use 2020 Census shapefiles for 2024+ releases
-  (PLACES switched from 2010 to 2020 Census geographies).
-* Fixed multiple bugs: operator precedence in `check_multiples()`, missing
-  `return()` calls, `readline()` hanging in non-interactive contexts, county
-  filter case-sensitivity, and connection-error handling in `check_api()`.
-* Rewrote query helpers to use SQL `IN` operators for shorter, more efficient
-  API URLs; added automatic batching for large ZCTA queries.
-* Replaced manual Google Sheets–based endpoint lookup (`data-raw/DATASET.R`)
-  with programmatic discovery via the Socrata catalog API.
-* Added 26 offline unit tests (`test-helpers.R`) that run on CRAN; rewrote API
-  integration tests with `skip_on_cran()` and deeper assertions.
+* Measure validation now uses the per-release availability matrix from the
+  PLACES data dictionary, producing clearer errors when a measure is requested
+  for a release year in which it is not available.
+* Health-related social needs (SOCLNEED) measures are now permitted for the
+  2025 release in addition to 2024.
+* Added a dedicated error for Disability (DISABILT) measures when requested
+  for a release year prior to 2023.
+* Measure validation is now also applied to the ZCTA code path.
+* Updated internal data to include the 2024 ZCTA release API endpoint.
 
 ### R CMD check results
 
