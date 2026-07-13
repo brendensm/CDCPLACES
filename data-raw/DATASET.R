@@ -79,6 +79,18 @@ print(api_urls)
 devtools::load_all()
 measures <- get_dictionary()
 
-# --- 5. Save to R/sysdata.rda ----------------------------------------------
+# --- 5. Build ZCTA/state crosswalk data -------------------------------------
+# Bundled internally so CDCPLACES does not depend on zctaCrosswalk at runtime.
+# zctaCrosswalk is only needed here, at build time, to regenerate this data.
+# Only the columns used by the package's internal helpers are kept.
 
-usethis::use_data(measures, api_urls, internal = TRUE, compress = "xz", overwrite = TRUE)
+zcta_crosswalk <- as.data.frame(
+  zctaCrosswalk::zcta_crosswalk
+)[, c("zcta", "state_usps", "county_name", "county_fips")]
+
+state_names <- as.data.frame(zctaCrosswalk::state_names)
+
+# --- 6. Save to R/sysdata.rda ----------------------------------------------
+
+usethis::use_data(measures, api_urls, zcta_crosswalk, state_names,
+                  internal = TRUE, compress = "xz", overwrite = TRUE)

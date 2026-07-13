@@ -76,7 +76,7 @@ get_places <- function(geography = "county", state = NULL, measure = NULL, count
       return(NULL)
     }
 
-    crosswalk <- zctaCrosswalk::zcta_crosswalk
+    crosswalk <- zcta_crosswalk
 
     if(is.null(county)){
 
@@ -439,7 +439,7 @@ check_measures <- function(x, ryear){
 #'@noRd
 check_states <- function(x){
 
-  us_states <- zctaCrosswalk::state_names$usps[1:51]
+  us_states <- state_names$usps[1:51]
 
   if(!(x %in% us_states)){
     stop("\nPlease enter a valid US State name.")
@@ -454,7 +454,7 @@ check_states <- function(x){
 check_counties <- function(x){
   #us_counties <- unique(usa::counties$name)
 
-  us_counties <- unique(zctaCrosswalk::zcta_crosswalk$county_name)
+  us_counties <- unique(zcta_crosswalk$county_name)
 
   if(!(paste(tolower(x), "county") %in% us_counties)){
     stop("\nPlease enter a valid US County name.")
@@ -655,7 +655,7 @@ parse_request <- function(x){
 #'@noRd
 check_multiples <- function(state, county){
 
-  crosswalk <- zctaCrosswalk::zcta_crosswalk
+  crosswalk <- zcta_crosswalk
 
   trial <- crosswalk[crosswalk$state_usps %in% state  &
                        crosswalk$county_name %in% paste(tolower(county), "county"),]
@@ -740,7 +740,7 @@ check_multiples <- function(state, county){
 #'@noRd
 check_multiples_cc <- function(state, county, places, geography){
 
-  crosswalk <- zctaCrosswalk::zcta_crosswalk
+  crosswalk <- zcta_crosswalk
 
   trial <- crosswalk[crosswalk$state_usps %in% state  &
                        crosswalk$county_name %in% paste(tolower(county), "county"),]

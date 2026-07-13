@@ -1,3 +1,10 @@
+# CDCPLACES 1.2.2
+
+## Updates
+
+* Removed `zctaCrosswalk` from `Imports`, eliminating a runtime dependency. The ZCTA-to-county crosswalk and state-abbreviation tables previously accessed via `zctaCrosswalk::` are now bundled internally in `sysdata.rda` (keeping only the columns the package actually uses). This is an internal change with no effect on user-facing behavior.
+* `data-raw/DATASET.R` now regenerates this bundled crosswalk data; `zctaCrosswalk` is used there only at build time.
+
 # CDCPLACES 1.2.1
 
 ## Updates

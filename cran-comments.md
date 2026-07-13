@@ -1,21 +1,14 @@
 ## This is an update to CDCPLACES
 
-# CDCPLACES 1.2.1
+# CDCPLACES 1.2.2
 
-This is a minor update that improves measure validation and adds support for
-the 2024 ZCTA release endpoint.
+This is a minor update that removes a package dependency.
 
 ### Key changes
 
-* Measure validation now uses the per-release availability matrix from the
-  PLACES data dictionary, producing clearer errors when a measure is requested
-  for a release year in which it is not available.
-* Health-related social needs (SOCLNEED) measures are now permitted for the
-  2025 release in addition to 2024.
-* Added a dedicated error for Disability (DISABILT) measures when requested
-  for a release year prior to 2023.
-* Measure validation is now also applied to the ZCTA code path.
-* Updated internal data to include the 2024 ZCTA release API endpoint.
+* Removed `zctaCrosswalk` from Imports, eliminating a runtime dependency. The
+  ZCTA-to-county crosswalk and state-abbreviation data it provided are now
+  bundled internally, with no change to user-facing behavior.
 
 ### R CMD check results
 
